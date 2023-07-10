@@ -1,0 +1,46 @@
+{
+  "project_info": {
+    "project_number": "996117887202",
+    "project_id": "japan-shooting-locations",
+    "storage_bucket": "japan-shooting-locations.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:996117887202:android:3e8abbd2f4ab47174a46bb",
+        "android_client_info": {
+          "package_name": "art.minasehiro.japanShootingLocations"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "996117887202-mvddmae7b4pokpj54e6cst68c2q75gmv.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDu0LgL9elHEyj-Tdjc8OO4EYHSdMIlCLI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "996117887202-mvddmae7b4pokpj54e6cst68c2q75gmv.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "996117887202-a7io152u87i4rlfilelimaber84gm2r1.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "art.minasehiro.japanShootingLocations"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
