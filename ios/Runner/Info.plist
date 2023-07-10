@@ -47,5 +47,7 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>写真をアップロードするため、カメラロールへのアクセスが必要になります</string>
 </dict>
 </plist>

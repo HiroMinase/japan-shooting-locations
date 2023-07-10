@@ -1,9 +1,13 @@
+import "dart:io";
+
 import "package:cloud_firestore/cloud_firestore.dart";
+import "package:file_picker/file_picker.dart";
+import "package:firebase_storage/firebase_storage.dart";
 import "package:flutter/material.dart";
 import "package:geoflutterfire_plus/geoflutterfire_plus.dart";
 import "package:google_maps_flutter/google_maps_flutter.dart";
 
-/// AlertDialog widget to add location data to Cloud Firestore.
+// ロケーション作成用のダイアログ
 class AddLocationDialog extends StatefulWidget {
   const AddLocationDialog({super.key, this.latLng});
 
@@ -17,6 +21,8 @@ class AddLocationDialogState extends State<AddLocationDialog> {
   final _nameEditingController = TextEditingController();
   final _latitudeEditingController = TextEditingController();
   final _longitudeEditingController = TextEditingController();
+  String imageUploadedPath = "";
+  String imageUploadedUrl = "";
 
   @override
   void initState() {
@@ -80,6 +86,13 @@ class AddLocationDialogState extends State<AddLocationDialog> {
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () async {
+              _uploadImage();
+            },
+            child: const Text("写真を選ぶ"),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () async {
               final navigator = Navigator.of(context);
               final name = _nameEditingController.value.text;
               if (name.isEmpty) {
@@ -97,6 +110,8 @@ class AddLocationDialogState extends State<AddLocationDialog> {
                   name,
                   latitude,
                   longitude,
+                  imageUploadedUrl,
+                  imageUploadedPath,
                 );
               } on Exception catch (e) {
                 debugPrint(
@@ -117,6 +132,8 @@ class AddLocationDialogState extends State<AddLocationDialog> {
     String name,
     double latitude,
     double longitude,
+    String imageUrl,
+    String imagePath,
   ) async {
     final geoFirePoint = GeoFirePoint(GeoPoint(latitude, longitude));
     await GeoCollectionReference<Map<String, dynamic>>(
@@ -124,6 +141,8 @@ class AddLocationDialogState extends State<AddLocationDialog> {
     ).add(<String, dynamic>{
       "geo": geoFirePoint.data,
       "name": name,
+      "imageUrl": imageUrl,
+      "imagePath": imagePath,
       "isVisible": true,
     });
     debugPrint(
@@ -131,7 +150,44 @@ class AddLocationDialogState extends State<AddLocationDialog> {
       "name: $name"
       "lat: $latitude, "
       "lng: $longitude, "
-      "geohash: ${geoFirePoint.geohash}",
+      "geohash: ${geoFirePoint.geohash}, "
+      "imageURL: $imageUrl, "
+      "imagePath: $imagePath, ",
     );
+  }
+
+  // 画像を追加
+  Future<void> _uploadImage() async {
+    // 画像ファイルを選択
+    final FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+    );
+
+    // 画像ファイルが選択された場合
+    if (result != null) {
+      // フォルダとファイル名を指定し画像ファイルをアップロード
+      // 日時をエポックミリ秒に変換
+      final int timestamp = DateTime.now().microsecondsSinceEpoch;
+      // ファイルのパス
+      final File file = File(result.files.single.path!);
+      // パスを/で区切った最後の値をnameに入れる
+      final String name = file.path.split('/').last;
+      final String path = '${timestamp}_$name';
+      final TaskSnapshot task = await FirebaseStorage.instance
+          .ref()
+          .child("images") // フォルダ名
+          .child(path) // ファイル名
+          .putFile(file); // 画像ファイル
+
+      // アップロードした画像のURLを取得
+      final String imageUrl = await task.ref.getDownloadURL();
+      // アップロードした画像の保存先を取得
+      final String imagePath = task.ref.fullPath;
+
+      setState(() {
+        imageUploadedUrl = imageUrl;
+        imageUploadedPath = imagePath;
+      });
+    }
   }
 }

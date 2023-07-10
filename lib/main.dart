@@ -1,8 +1,10 @@
 import "dart:async";
+import "dart:ui";
+import "package:flutter/material.dart";
 
 import "package:cloud_firestore/cloud_firestore.dart";
 import "package:firebase_core/firebase_core.dart";
-import "package:flutter/material.dart";
+import "package:flutter/services.dart";
 import "package:geoflutterfire_plus/geoflutterfire_plus.dart";
 import "package:google_maps_flutter/google_maps_flutter.dart";
 import "package:rxdart/rxdart.dart";
@@ -89,9 +91,9 @@ class MapViewState extends State<MapView> {
   );
 
   // Stream の更新に合わせてピンを描画し直す
-  void _updateMarkersByDocumentSnapshots(
+  Future<void> _updateMarkersByDocumentSnapshots(
     List<DocumentSnapshot<Map<String, dynamic>>> documentSnapshots,
-  ) {
+  ) async {
     final markers = <Marker>{};
     for (final ds in documentSnapshots) {
       final id = ds.id;
@@ -101,7 +103,12 @@ class MapViewState extends State<MapView> {
       }
       final name = data["name"] as String;
       final geoPoint = (data["geo"] as Map<String, dynamic>)["geopoint"] as GeoPoint;
-      markers.add(_createMarker(id: id, name: name, geoPoint: geoPoint));
+      final imageUrl = data["imageUrl"] as String;
+      final imagePath = data["imagePath"] as String;
+      final Uint8List uintData = await imageToUint8List(imageUrl, 150, 150);
+      final BitmapDescriptor imageBitmapDescriptor = BitmapDescriptor.fromBytes(uintData);
+
+      markers.add(_createMarker(id, name, geoPoint, imageBitmapDescriptor, imageUrl, imagePath));
     }
     debugPrint("📍 ピンの数: ${markers.length}");
     setState(() {
@@ -109,27 +116,42 @@ class MapViewState extends State<MapView> {
     });
   }
 
+  // 画像URLを受け取り、 Uint8List に変換して返す
+  Future<Uint8List> imageToUint8List(String imageUrl, int height, int width) async {
+    //画像のpathを読み込む
+    final ByteData byteData = await NetworkAssetBundle(Uri.parse(imageUrl)).load(imageUrl);
+    final Codec codec = await instantiateImageCodec(
+      byteData.buffer.asUint8List(),
+      //高さ
+      targetHeight: height,
+      //幅
+      targetWidth: width,
+    );
+    final FrameInfo uiFrameInfo = await codec.getNextFrame();
+    return (await uiFrameInfo.image.toByteData(format: ImageByteFormat.png))!.buffer.asUint8List();
+  }
+
   // マップに落とすマーカーを作成
-  Marker _createMarker({
-    required String id,
-    required String name,
-    required GeoPoint geoPoint,
-  }) =>
-      Marker(
-        markerId: MarkerId("(${geoPoint.latitude}, ${geoPoint.longitude})"),
-        position: LatLng(geoPoint.latitude, geoPoint.longitude),
-        infoWindow: InfoWindow(title: name),
-        onTap: () => showDialog<void>(
-          context: context,
-          builder: (context) => SetOrDeleteLocationDialog(
-            id: id,
-            name: name,
-            geoFirePoint: GeoFirePoint(
-              GeoPoint(geoPoint.latitude, geoPoint.longitude),
-            ),
+  Marker _createMarker(String id, String name, GeoPoint geoPoint, BitmapDescriptor imageBitmapDescriptor, String imageUrl, String imagePath) {
+    return Marker(
+      markerId: MarkerId("(${geoPoint.latitude}, ${geoPoint.longitude})"),
+      position: LatLng(geoPoint.latitude, geoPoint.longitude),
+      infoWindow: InfoWindow(title: name),
+      icon: imageBitmapDescriptor,
+      onTap: () => showDialog<void>(
+        context: context,
+        builder: (context) => SetOrDeleteLocationDialog(
+          id: id,
+          name: name,
+          geoFirePoint: GeoFirePoint(
+            GeoPoint(geoPoint.latitude, geoPoint.longitude),
           ),
+          imageUrl: imageUrl,
+          imagePath: imagePath,
         ),
-      );
+      ),
+    );
+  }
 
   // 現在の検索半径をセット
   double get _radiusInKm => _geoQueryCondition.value.radiusInKm;
