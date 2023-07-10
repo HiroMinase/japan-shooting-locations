@@ -70,7 +70,8 @@ class MapViewState extends State<MapView> {
     ),
   );
 
-  // geoQuery の Stream
+  // locations の Stream
+  // switchMap によって最新の _GeoQueryCondition によるクエリが発行される
   late final Stream<List<DocumentSnapshot<Map<String, dynamic>>>> _stream = _geoQueryCondition.switchMap(
     (geoQueryCondition) => GeoCollectionReference(_collectionReference).subscribeWithin(
       center: GeoFirePoint(
@@ -82,11 +83,12 @@ class MapViewState extends State<MapView> {
       radiusInKm: geoQueryCondition.radiusInKm,
       field: "geo",
       geopointFrom: (data) => (data["geo"] as Map<String, dynamic>)["geopoint"] as GeoPoint,
+      queryBuilder: (query) => query.where('isVisible', isEqualTo: true),
       strictMode: true,
     ),
   );
 
-  // ピンを描画し直す
+  // Stream の更新に合わせてピンを描画し直す
   void _updateMarkersByDocumentSnapshots(
     List<DocumentSnapshot<Map<String, dynamic>>> documentSnapshots,
   ) {
@@ -107,7 +109,7 @@ class MapViewState extends State<MapView> {
     });
   }
 
-  // GeoPoint に落とすマーカーを作成
+  // マップに落とすマーカーを作成
   Marker _createMarker({
     required String id,
     required String name,
@@ -183,6 +185,7 @@ class MapViewState extends State<MapView> {
                 strokeWidth: 0,
               ),
             },
+            // カメラ位置の変化によって _geoQueryCondition を追加
             onCameraMove: (cameraPosition) {
               debugPrint("📷 緯度: ${cameraPosition.target.latitude}, "
                   "経度: ${cameraPosition.target.latitude}");
@@ -234,6 +237,7 @@ class MapViewState extends State<MapView> {
                   max: 100,
                   divisions: 99,
                   label: _radiusInKm.toStringAsFixed(1),
+                  // 検索半径の変化によって _geoQueryCondition を追加
                   onChanged: (value) => _geoQueryCondition.add(
                     _GeoQueryCondition(
                       radiusInKm: value,
