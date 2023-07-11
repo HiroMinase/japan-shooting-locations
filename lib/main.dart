@@ -124,16 +124,14 @@ class MapViewState extends State<MapView> {
 
   // 画像URLを受け取り、 Uint8List に変換して返す
   Future<Uint8List> imageToUint8List(String imageUrl, int height, int width) async {
-    //画像のpathを読み込む
     final ByteData byteData = await NetworkAssetBundle(Uri.parse(imageUrl)).load(imageUrl);
     final Codec codec = await instantiateImageCodec(
       byteData.buffer.asUint8List(),
-      //高さ
       targetHeight: height,
-      //幅
       targetWidth: width,
     );
     final FrameInfo uiFrameInfo = await codec.getNextFrame();
+
     return (await uiFrameInfo.image.toByteData(format: ImageByteFormat.png))!.buffer.asUint8List();
   }
 
@@ -228,8 +226,7 @@ class MapViewState extends State<MapView> {
                   _cameraPosition.target.latitude,
                   _cameraPosition.target.longitude,
                 ),
-                // キロメートルからメートルへの変換
-                radius: _radiusInKm * 1000,
+                radius: _radiusInKm * 1000, // キロメートルからメートルへの変換
                 fillColor: Colors.black12,
                 strokeWidth: 0,
               ),
