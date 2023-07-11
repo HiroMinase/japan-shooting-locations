@@ -127,7 +127,7 @@ class AddLocationDialogState extends State<AddLocationDialog> {
     );
   }
 
-  /// Adds location data to Cloud Firestore.
+  //　Firestore に登録
   Future<void> _addLocation(
     String name,
     double latitude,
@@ -156,7 +156,7 @@ class AddLocationDialogState extends State<AddLocationDialog> {
     );
   }
 
-  // 画像を追加
+  // 画像を Cloud Storage にアップロードし、 URL と Path を取得
   Future<void> _uploadImage() async {
     // 画像ファイルを選択
     final FilePickerResult? result = await FilePicker.platform.pickFiles(

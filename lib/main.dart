@@ -107,7 +107,9 @@ class MapViewState extends State<MapView> {
       final imagePath = data["imagePath"] as String;
 
       if (imageUrl != "") {
-        final Uint8List uintData = await imageToUint8List(imageUrl, 150, 150);
+        // 画像サイズを指定しつつ、 Cloud Storage の画像を Uint8List に変換
+        final Uint8List uintData = await imageToUint8List(imageUrl, 100, 100);
+        // Marker の icon に渡せるように Uint8List を BitmapDescriptor に変換
         final BitmapDescriptor imageBitmapDescriptor = BitmapDescriptor.fromBytes(uintData);
         markers.add(_createImageMarker(id, name, geoPoint, imageBitmapDescriptor, imageUrl, imagePath));
       } else {

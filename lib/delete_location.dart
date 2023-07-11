@@ -23,14 +23,13 @@ class DeleteLocationDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      // title: const Text("撮影地を削除しますか？"),
-      title: Image.network(imageUrl, height: 200, fit: BoxFit.cover),
+      title: imageUrl != "" ? Image.network(imageUrl, height: 200, fit: BoxFit.cover) : null,
       content: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text("名前: $name"),
+          Text("$nameを削除します"),
           const SizedBox(height: 8),
           Text("緯度: ${geoFirePoint.latitude}"),
           const SizedBox(height: 8),
@@ -38,6 +37,7 @@ class DeleteLocationDialog extends StatelessWidget {
           const SizedBox(height: 8),
           Align(
             child: ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
               onPressed: () async {
                 final navigator = Navigator.of(context);
                 try {
@@ -57,12 +57,14 @@ class DeleteLocationDialog extends StatelessWidget {
     );
   }
 
-  /// Deletes location data from Cloud Firestore.
-  Future<void> _deleteLocationWithImage(String id, String imagePath) async {
+  // location を Firestore から削除し、画像を Cloud Storage から削除
+  Future<void> _deleteLocationWithImage(String id, String imageUrl) async {
     await GeoCollectionReference<Map<String, dynamic>>(
       FirebaseFirestore.instance.collection("locations"),
     ).delete(id);
-    await FirebaseStorage.instance.refFromURL(imageUrl).delete();
+    if (imageUrl != "") {
+      await FirebaseStorage.instance.refFromURL(imageUrl).delete();
+    }
 
     debugPrint(
       "🌍 ロケーションを削除 id: $id",

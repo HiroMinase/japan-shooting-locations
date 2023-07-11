@@ -9,11 +9,15 @@ class SetLocationDialog extends StatefulWidget {
     required this.id,
     required this.name,
     required this.geoFirePoint,
+    required this.imageUrl,
+    required this.imagePath,
   });
 
   final String id;
   final String name;
   final GeoFirePoint geoFirePoint;
+  final String imageUrl;
+  final String imagePath;
 
   @override
   State<SetLocationDialog> createState() => _SetLocationDialogState();
@@ -43,13 +47,13 @@ class _SetLocationDialogState extends State<SetLocationDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Center(
-        child: Text("ロケーションを更新"),
-      ),
+      title: widget.imageUrl != "" ? Image.network(widget.imageUrl, height: 200, fit: BoxFit.cover) : null,
       content: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
+          Text("$widget.nameを編集"),
+          const SizedBox(height: 16),
           TextField(
             controller: _nameEditingController,
             keyboardType: TextInputType.name,
@@ -118,7 +122,7 @@ class _SetLocationDialogState extends State<SetLocationDialog> {
     );
   }
 
-  /// Sets location data to Cloud Firestore.
+  // Frestore のデータを更新
   Future<void> _set(
     String id,
     String newName,

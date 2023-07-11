@@ -24,7 +24,7 @@ class SetOrDeleteLocationDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Image.network(imageUrl, height: 200, fit: BoxFit.cover),
+      title: imageUrl != "" ? Image.network(imageUrl, height: 200, fit: BoxFit.cover) : null,
       content: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -44,6 +44,8 @@ class SetOrDeleteLocationDialog extends StatelessWidget {
                     id: id,
                     name: name,
                     geoFirePoint: geoFirePoint,
+                    imageUrl: imageUrl,
+                    imagePath: imagePath,
                   ),
                 ),
                 child: const Text("編集"),
