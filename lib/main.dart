@@ -7,10 +7,10 @@ import "package:firebase_core/firebase_core.dart";
 import "package:flutter/services.dart";
 import "package:geoflutterfire_plus/geoflutterfire_plus.dart";
 import "package:google_maps_flutter/google_maps_flutter.dart";
+import "package:japan_shooting_locations/set_or_delete_location.dart";
 import "package:rxdart/rxdart.dart";
 
 import "add_location.dart";
-import "set_or_delete_location.dart";
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -105,10 +105,14 @@ class MapViewState extends State<MapView> {
       final geoPoint = (data["geo"] as Map<String, dynamic>)["geopoint"] as GeoPoint;
       final imageUrl = data["imageUrl"] as String;
       final imagePath = data["imagePath"] as String;
-      final Uint8List uintData = await imageToUint8List(imageUrl, 150, 150);
-      final BitmapDescriptor imageBitmapDescriptor = BitmapDescriptor.fromBytes(uintData);
 
-      markers.add(_createMarker(id, name, geoPoint, imageBitmapDescriptor, imageUrl, imagePath));
+      if (imageUrl != "") {
+        final Uint8List uintData = await imageToUint8List(imageUrl, 150, 150);
+        final BitmapDescriptor imageBitmapDescriptor = BitmapDescriptor.fromBytes(uintData);
+        markers.add(_createImageMarker(id, name, geoPoint, imageBitmapDescriptor, imageUrl, imagePath));
+      } else {
+        markers.add(_createMarker(id, name, geoPoint, imageUrl, imagePath));
+      }
     }
     debugPrint("📍 ピンの数: ${markers.length}");
     setState(() {
@@ -131,13 +135,34 @@ class MapViewState extends State<MapView> {
     return (await uiFrameInfo.image.toByteData(format: ImageByteFormat.png))!.buffer.asUint8List();
   }
 
-  // マップに落とすマーカーを作成
-  Marker _createMarker(String id, String name, GeoPoint geoPoint, BitmapDescriptor imageBitmapDescriptor, String imageUrl, String imagePath) {
+  // マップに落とすサムネイルマーカーを作成
+  Marker _createImageMarker(String id, String name, GeoPoint geoPoint, BitmapDescriptor imageBitmapDescriptor, String imageUrl, String imagePath) {
     return Marker(
       markerId: MarkerId("(${geoPoint.latitude}, ${geoPoint.longitude})"),
       position: LatLng(geoPoint.latitude, geoPoint.longitude),
       infoWindow: InfoWindow(title: name),
       icon: imageBitmapDescriptor,
+      onTap: () => showDialog<void>(
+        context: context,
+        builder: (context) => SetOrDeleteLocationDialog(
+          id: id,
+          name: name,
+          geoFirePoint: GeoFirePoint(
+            GeoPoint(geoPoint.latitude, geoPoint.longitude),
+          ),
+          imageUrl: imageUrl,
+          imagePath: imagePath,
+        ),
+      ),
+    );
+  }
+
+  // マップに落とすマーカーを作成
+  Marker _createMarker(String id, String name, GeoPoint geoPoint, String imageUrl, String imagePath) {
+    return Marker(
+      markerId: MarkerId("(${geoPoint.latitude}, ${geoPoint.longitude})"),
+      position: LatLng(geoPoint.latitude, geoPoint.longitude),
+      infoWindow: InfoWindow(title: name),
       onTap: () => showDialog<void>(
         context: context,
         builder: (context) => SetOrDeleteLocationDialog(
