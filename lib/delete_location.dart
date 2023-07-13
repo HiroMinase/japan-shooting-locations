@@ -30,11 +30,11 @@ class DeleteLocationDialog extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Text("$nameを削除します"),
-          const SizedBox(height: 8),
+          const SizedBox(height: 16),
           Text("緯度: ${geoFirePoint.latitude}"),
-          const SizedBox(height: 8),
+          const SizedBox(height: 16),
           Text("経度: ${geoFirePoint.longitude}"),
-          const SizedBox(height: 8),
+          const SizedBox(height: 16),
           Align(
             child: ElevatedButton(
               style: ElevatedButton.styleFrom(backgroundColor: Colors.red),

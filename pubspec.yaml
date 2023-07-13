@@ -39,6 +39,7 @@ dependencies:
   cloud_firestore: ^4.8.2
   firebase_storage: ^11.2.4
   file_picker: ^5.3.2
+  cached_network_image: ^3.2.3
 
   hooks_riverpod: ^2.3.6
   freezed: ^2.3.5

@@ -1,3 +1,4 @@
+import "package:cached_network_image/cached_network_image.dart";
 import "package:flutter/material.dart";
 import "package:geoflutterfire_plus/geoflutterfire_plus.dart";
 
@@ -24,48 +25,52 @@ class SetOrDeleteLocationDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: imageUrl != "" ? Image.network(imageUrl, height: 200, fit: BoxFit.cover) : null,
+      title: imageUrl != ""
+          ? CachedNetworkImage(
+              imageUrl: imageUrl,
+              placeholder: (context, url) => const SizedBox(
+                width: 50,
+                height: 50,
+                child: Center(child: CircularProgressIndicator()),
+              ),
+              errorWidget: (context, url, error) => const Icon(Icons.error),
+            )
+          : null,
       content: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text("名前: $name"),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
-                onPressed: () => showDialog<void>(
-                  context: context,
-                  builder: (_) => SetLocationDialog(
-                    id: id,
-                    name: name,
-                    geoFirePoint: geoFirePoint,
-                    imageUrl: imageUrl,
-                    imagePath: imagePath,
-                  ),
-                ),
-                child: const Text("編集"),
+          Text(name),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+            onPressed: () => showDialog<void>(
+              context: context,
+              builder: (_) => SetLocationDialog(
+                id: id,
+                name: name,
+                geoFirePoint: geoFirePoint,
+                imageUrl: imageUrl,
+                imagePath: imagePath,
               ),
-              const SizedBox(width: 24),
-              ElevatedButton(
-                style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                onPressed: () => showDialog<void>(
-                  context: context,
-                  builder: (_) => DeleteLocationDialog(
-                    id: id,
-                    name: name,
-                    geoFirePoint: geoFirePoint,
-                    imageUrl: imageUrl,
-                    imagePath: imagePath,
-                  ),
-                ),
-                child: const Text("削除"),
+            ),
+            child: const Text("編集する"),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+            onPressed: () => showDialog<void>(
+              context: context,
+              builder: (_) => DeleteLocationDialog(
+                id: id,
+                name: name,
+                geoFirePoint: geoFirePoint,
+                imageUrl: imageUrl,
+                imagePath: imagePath,
               ),
-            ],
+            ),
+            child: const Text("削除する"),
           ),
         ],
       ),

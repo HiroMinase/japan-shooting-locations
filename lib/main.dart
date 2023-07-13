@@ -42,6 +42,8 @@ const shibuyaScrambleSquare = LatLng(35.6583931, 139.7023043);
 // 位置データが格納されているコレクションへの参照
 final _collectionReference = FirebaseFirestore.instance.collection("locations");
 
+bool isDisplayThumbnail = false;
+
 // 検索半径やカメラ位置などを管理
 class _GeoQueryCondition {
   _GeoQueryCondition({
@@ -106,7 +108,7 @@ class MapViewState extends State<MapView> {
       final imageUrl = data["imageUrl"] as String;
       final imagePath = data["imagePath"] as String;
 
-      if (imageUrl != "") {
+      if (imageUrl != "" && isDisplayThumbnail) {
         // 画像サイズを指定しつつ、 Cloud Storage の画像を Uint8List に変換
         final Uint8List uintData = await imageToUint8List(imageUrl, 100, 100);
         // Marker の icon に渡せるように Uint8List を BitmapDescriptor に変換

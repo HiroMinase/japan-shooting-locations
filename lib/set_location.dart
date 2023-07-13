@@ -52,7 +52,7 @@ class _SetLocationDialogState extends State<SetLocationDialog> {
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          Text("$widget.nameを編集"),
+          Text("${widget.name}を編集"),
           const SizedBox(height: 16),
           TextField(
             controller: _nameEditingController,
