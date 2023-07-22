@@ -48,6 +48,8 @@ dependencies:
   geoflutterfire_plus: ^0.0.14
   rxdart: ^0.27.7
 
+  geolocator: ^9.0.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
