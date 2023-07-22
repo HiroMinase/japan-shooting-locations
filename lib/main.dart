@@ -7,6 +7,7 @@ import "package:cloud_firestore/cloud_firestore.dart";
 import "package:firebase_core/firebase_core.dart";
 import "package:flutter/services.dart";
 import "package:geoflutterfire_plus/geoflutterfire_plus.dart";
+import "package:geolocator/geolocator.dart";
 import "package:google_maps_flutter/google_maps_flutter.dart";
 import "package:rxdart/rxdart.dart";
 
@@ -195,9 +196,56 @@ class MapViewState extends State<MapView> {
   );
 
   // PageView 用のコントローラー
-  final pageController = PageController(
+  final PageController pageController = PageController(
     viewportFraction: 0.85,
   );
+
+  // 位置情報
+  late LocationPermission locationPermission;
+  final Completer<GoogleMapController> _googleMapController = Completer<GoogleMapController>();
+
+  // 現在地を取得するための権限を取得
+  Future<void> _getLocationPermission() async {
+    LocationPermission currentPermission;
+
+    currentPermission = await Geolocator.requestPermission();
+
+    setState(() {
+      locationPermission = currentPermission;
+    });
+
+    _getCurrentPosition(currentPermission);
+  }
+
+  // 現在地を取得するための権限を取得
+  Future<void> _getCurrentPosition(locationPermission) async {
+    bool serviceEnabled;
+    Position currentPosition;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return Future.error("位置情報サービスが使えない状態です");
+    }
+
+    if (locationPermission == LocationPermission.whileInUse || locationPermission == LocationPermission.always) {
+      currentPosition = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+
+      final completer = await _googleMapController.future;
+      completer.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: LatLng(
+              currentPosition.latitude,
+              currentPosition.longitude,
+            ),
+            zoom: _initialZoom,
+          ),
+        ),
+      );
+    } else {
+      return Future.error("位置情報への権限が無いため、現在地を取得できません");
+    }
+  }
 
   @override
   void dispose() {
@@ -214,7 +262,11 @@ class MapViewState extends State<MapView> {
             zoomControlsEnabled: false,
             myLocationButtonEnabled: false,
             initialCameraPosition: _initialCameraPosition,
-            onMapCreated: (_) => _stream.listen(_updateMarkersByDocumentSnapshots),
+            onMapCreated: (GoogleMapController googleMap) {
+              _googleMapController.complete(googleMap);
+
+              _stream.listen(_updateMarkersByDocumentSnapshots);
+            },
             markers: _markers,
             circles: {
               Circle(
@@ -291,92 +343,111 @@ class MapViewState extends State<MapView> {
               ],
             ),
           ),
-          Positioned(
-            bottom: 0,
-            child: Container(
-              color: Colors.black26,
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height * 0.15,
-              child: Container(
-                margin: const EdgeInsets.all(5.0),
-                child: PageView.builder(
-                  controller: pageController,
-                  itemCount: markerDataList.length,
-                  onPageChanged: (int index) async {
-                    // スワイプ後のマーカー
-                    // final marker = _markers.elementAt(index);
-
-                    // _geoQueryCondition.add(
-                    //   _GeoQueryCondition(
-                    //     radiusInKm: _radiusInKm,
-                    //     cameraPosition: CameraPosition(
-                    //       target: marker.position,
-                    //       zoom: _initialZoom,
-                    //     ),
-                    //   ),
-                    // );
-                  },
-                  itemBuilder: (context, index) {
-                    return GestureDetector(
-                      onTap: () {
-                        showDialog<void>(
-                          context: context,
-                          builder: (context) => SetOrDeleteLocationDialog(
-                            id: markerDataList[index].firestoreDocumentId,
-                            name: markerDataList[index].name,
-                            geoFirePoint: GeoFirePoint(
-                              GeoPoint(
-                                _markers.elementAt(index).position.latitude,
-                                _markers.elementAt(index).position.longitude,
-                              ),
-                            ),
-                            imageUrl: markerDataList[index].imageUrl,
-                            imagePath: markerDataList[index].imagePath,
-                          ),
-                        );
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.all(10),
-                        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          color: Colors.white,
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            if (markerDataList[index].imageUrl != "") CachedNetworkImage(imageUrl: markerDataList[index].imageUrl),
-                            Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    markerDataList[index].name,
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    );
-                  },
+          Container(
+            margin: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.15 * 1.2),
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: GestureDetector(
+                onTap: () {
+                  _getLocationPermission();
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: Colors.yellow,
+                    border: Border.all(color: Colors.white, width: 1.0),
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  child: const Text(
+                    "現在地を取得",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
             ),
           ),
+          if (markerDataList != [])
+            Positioned(
+              bottom: 0,
+              child: Container(
+                color: Colors.black26,
+                width: MediaQuery.of(context).size.width,
+                height: MediaQuery.of(context).size.height * 0.15,
+                child: Container(
+                  margin: const EdgeInsets.all(5.0),
+                  child: PageView.builder(
+                    controller: pageController,
+                    itemCount: markerDataList.length,
+                    onPageChanged: (int index) async {
+                      // スワイプ後のマーカー
+                      // final marker = _markers.elementAt(index);
+
+                      // _geoQueryCondition.add(
+                      //   _GeoQueryCondition(
+                      //     radiusInKm: _radiusInKm,
+                      //     cameraPosition: CameraPosition(
+                      //       target: marker.position,
+                      //       zoom: _initialZoom,
+                      //     ),
+                      //   ),
+                      // );
+                    },
+                    itemBuilder: (context, index) {
+                      return GestureDetector(
+                        onTap: () {
+                          showDialog<void>(
+                            context: context,
+                            builder: (context) => SetOrDeleteLocationDialog(
+                              id: markerDataList[index].firestoreDocumentId,
+                              name: markerDataList[index].name,
+                              geoFirePoint: GeoFirePoint(
+                                GeoPoint(
+                                  _markers.elementAt(index).position.latitude,
+                                  _markers.elementAt(index).position.longitude,
+                                ),
+                              ),
+                              imageUrl: markerDataList[index].imageUrl,
+                              imagePath: markerDataList[index].imagePath,
+                            ),
+                          );
+                        },
+                        child: Container(
+                          margin: const EdgeInsets.all(10),
+                          padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(20),
+                            color: Colors.white,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              if (markerDataList[index].imageUrl != "") CachedNetworkImage(imageUrl: markerDataList[index].imageUrl),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      markerDataList[index].name,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => showDialog<void>(
-          context: context,
-          builder: (context) => const AddLocationDialog(),
-        ),
-        child: const Icon(Icons.add),
       ),
     );
   }
