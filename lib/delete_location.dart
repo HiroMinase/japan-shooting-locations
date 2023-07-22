@@ -41,7 +41,7 @@ class DeleteLocationDialog extends StatelessWidget {
               onPressed: () async {
                 final navigator = Navigator.of(context);
                 try {
-                  await _deleteLocationWithImage(id, imagePath);
+                  await _deleteLocationWithImage(id, imageUrl);
                 } on Exception catch (e) {
                   debugPrint(
                     "🚨 ロケーション削除に失敗 $e",

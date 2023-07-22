@@ -91,6 +91,7 @@ class AddLocationDialogState extends State<AddLocationDialog> {
             child: const Text("写真を選ぶ"),
           ),
           const SizedBox(height: 16),
+          // TODO: Exif 情報も保存したい
           ElevatedButton(
             onPressed: () async {
               final navigator = Navigator.of(context);

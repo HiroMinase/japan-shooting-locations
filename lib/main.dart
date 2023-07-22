@@ -1,5 +1,6 @@
 import "dart:async";
 import "dart:ui";
+import "package:cached_network_image/cached_network_image.dart";
 import "package:flutter/material.dart";
 
 import "package:cloud_firestore/cloud_firestore.dart";
@@ -7,10 +8,11 @@ import "package:firebase_core/firebase_core.dart";
 import "package:flutter/services.dart";
 import "package:geoflutterfire_plus/geoflutterfire_plus.dart";
 import "package:google_maps_flutter/google_maps_flutter.dart";
-import "package:japan_shooting_locations/set_or_delete_location.dart";
 import "package:rxdart/rxdart.dart";
 
 import "add_location.dart";
+import "marker_data.dart";
+import "set_or_delete_location.dart";
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -65,6 +67,7 @@ class MapView extends StatefulWidget {
 // GoogleMap を表示
 class MapViewState extends State<MapView> {
   Set<Marker> _markers = {};
+  List<MarkerData> markerDataList = []; // _markers に対応する画像やタイトル、Exif情報を持つ
 
   // 現在の検索半径とカメラ位置
   final _geoQueryCondition = BehaviorSubject<_GeoQueryCondition>.seeded(
@@ -97,6 +100,7 @@ class MapViewState extends State<MapView> {
     List<DocumentSnapshot<Map<String, dynamic>>> documentSnapshots,
   ) async {
     final markers = <Marker>{};
+    final List<MarkerData> dataList = [];
     for (final ds in documentSnapshots) {
       final id = ds.id;
       final data = ds.data();
@@ -108,19 +112,31 @@ class MapViewState extends State<MapView> {
       final imageUrl = data["imageUrl"] as String;
       final imagePath = data["imagePath"] as String;
 
+      // マーカーにサムネイルを表示する場合
       if (imageUrl != "" && isDisplayThumbnail) {
         // 画像サイズを指定しつつ、 Cloud Storage の画像を Uint8List に変換
         final Uint8List uintData = await imageToUint8List(imageUrl, 100, 100);
         // Marker の icon に渡せるように Uint8List を BitmapDescriptor に変換
         final BitmapDescriptor imageBitmapDescriptor = BitmapDescriptor.fromBytes(uintData);
-        markers.add(_createImageMarker(id, name, geoPoint, imageBitmapDescriptor, imageUrl, imagePath));
+        markers.add(_createImageMarker(geoPoint, imageBitmapDescriptor));
       } else {
-        markers.add(_createMarker(id, name, geoPoint, imageUrl, imagePath));
+        markers.add(_createMarker(geoPoint));
       }
+
+      // markers に合わせ、 MarkerData も作成
+      dataList.add(
+        MarkerData(
+          firestoreDocumentId: id,
+          name: name,
+          imageUrl: imageUrl,
+          imagePath: imagePath,
+        ),
+      );
     }
     debugPrint("📍 ピンの数: ${markers.length}");
     setState(() {
       _markers = markers;
+      markerDataList = dataList;
     });
   }
 
@@ -138,45 +154,19 @@ class MapViewState extends State<MapView> {
   }
 
   // マップに落とすサムネイルマーカーを作成
-  Marker _createImageMarker(String id, String name, GeoPoint geoPoint, BitmapDescriptor imageBitmapDescriptor, String imageUrl, String imagePath) {
+  Marker _createImageMarker(GeoPoint geoPoint, BitmapDescriptor imageBitmapDescriptor) {
     return Marker(
       markerId: MarkerId("(${geoPoint.latitude}, ${geoPoint.longitude})"),
       position: LatLng(geoPoint.latitude, geoPoint.longitude),
-      infoWindow: InfoWindow(title: name),
       icon: imageBitmapDescriptor,
-      onTap: () => showDialog<void>(
-        context: context,
-        builder: (context) => SetOrDeleteLocationDialog(
-          id: id,
-          name: name,
-          geoFirePoint: GeoFirePoint(
-            GeoPoint(geoPoint.latitude, geoPoint.longitude),
-          ),
-          imageUrl: imageUrl,
-          imagePath: imagePath,
-        ),
-      ),
     );
   }
 
   // マップに落とすマーカーを作成
-  Marker _createMarker(String id, String name, GeoPoint geoPoint, String imageUrl, String imagePath) {
+  Marker _createMarker(GeoPoint geoPoint) {
     return Marker(
       markerId: MarkerId("(${geoPoint.latitude}, ${geoPoint.longitude})"),
       position: LatLng(geoPoint.latitude, geoPoint.longitude),
-      infoWindow: InfoWindow(title: name),
-      onTap: () => showDialog<void>(
-        context: context,
-        builder: (context) => SetOrDeleteLocationDialog(
-          id: id,
-          name: name,
-          geoFirePoint: GeoFirePoint(
-            GeoPoint(geoPoint.latitude, geoPoint.longitude),
-          ),
-          imageUrl: imageUrl,
-          imagePath: imagePath,
-        ),
-      ),
     );
   }
 
@@ -187,7 +177,7 @@ class MapViewState extends State<MapView> {
   CameraPosition get _cameraPosition => _geoQueryCondition.value.cameraPosition;
 
   // デフォルトの検索半径
-  static const double _initialRadiusInKm = 1;
+  static const double _initialRadiusInKm = 2;
 
   // Google Map の初期ズームレベル
   static const double _initialZoom = 14;
@@ -202,6 +192,11 @@ class MapViewState extends State<MapView> {
   static final _initialCameraPosition = CameraPosition(
     target: _initialTarget,
     zoom: _initialZoom,
+  );
+
+  // PageView 用のコントローラー
+  final pageController = PageController(
+    viewportFraction: 0.85,
   );
 
   @override
@@ -272,7 +267,7 @@ class MapViewState extends State<MapView> {
                 ),
                 const SizedBox(height: 8),
                 Text(
-                  "検索半径: ${_radiusInKm.toStringAsFixed(1)} (km)",
+                  "検索半径: ${_radiusInKm.toStringAsFixed(1)}km",
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -294,6 +289,84 @@ class MapViewState extends State<MapView> {
                   ),
                 ),
               ],
+            ),
+          ),
+          Positioned(
+            bottom: 0,
+            child: Container(
+              color: Colors.black26,
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height * 0.15,
+              child: Container(
+                margin: const EdgeInsets.all(5.0),
+                child: PageView.builder(
+                  controller: pageController,
+                  itemCount: markerDataList.length,
+                  onPageChanged: (int index) async {
+                    // スワイプ後のマーカー
+                    // final marker = _markers.elementAt(index);
+
+                    // _geoQueryCondition.add(
+                    //   _GeoQueryCondition(
+                    //     radiusInKm: _radiusInKm,
+                    //     cameraPosition: CameraPosition(
+                    //       target: marker.position,
+                    //       zoom: _initialZoom,
+                    //     ),
+                    //   ),
+                    // );
+                  },
+                  itemBuilder: (context, index) {
+                    return GestureDetector(
+                      onTap: () {
+                        showDialog<void>(
+                          context: context,
+                          builder: (context) => SetOrDeleteLocationDialog(
+                            id: markerDataList[index].firestoreDocumentId,
+                            name: markerDataList[index].name,
+                            geoFirePoint: GeoFirePoint(
+                              GeoPoint(
+                                _markers.elementAt(index).position.latitude,
+                                _markers.elementAt(index).position.longitude,
+                              ),
+                            ),
+                            imageUrl: markerDataList[index].imageUrl,
+                            imagePath: markerDataList[index].imagePath,
+                          ),
+                        );
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.all(10),
+                        padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          color: Colors.white,
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            if (markerDataList[index].imageUrl != "") CachedNetworkImage(imageUrl: markerDataList[index].imageUrl),
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    markerDataList[index].name,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
             ),
           ),
         ],
