@@ -291,6 +291,31 @@ class MapViewState extends State<MapView> {
               ],
             ),
           ),
+          Container(
+            margin: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.15 * 1.2),
+            child: Align(
+              alignment: Alignment.bottomCenter,
+              child: GestureDetector(
+                onTap: () {
+                  // 現在地を取得
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: Colors.yellow,
+                    border: Border.all(color: Colors.white, width: 1.0),
+                    borderRadius: BorderRadius.circular(25),
+                  ),
+                  child: const Text(
+                    "現在地を取得",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
           Positioned(
             bottom: 0,
             child: Container(
@@ -370,13 +395,6 @@ class MapViewState extends State<MapView> {
             ),
           ),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => showDialog<void>(
-          context: context,
-          builder: (context) => const AddLocationDialog(),
-        ),
-        child: const Icon(Icons.add),
       ),
     );
   }
