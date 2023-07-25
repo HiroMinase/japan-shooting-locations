@@ -67,7 +67,7 @@ class MapView extends StatefulWidget {
 
 // GoogleMap を表示
 class MapViewState extends State<MapView> {
-  Set<Marker> _markers = {};
+  List<Marker> _markers = [];
   List<MarkerData> markerDataList = []; // _markers に対応する画像やタイトル、Exif情報を持つ
 
   // 現在の検索半径とカメラ位置
@@ -91,7 +91,8 @@ class MapViewState extends State<MapView> {
       radiusInKm: geoQueryCondition.radiusInKm,
       field: "geo",
       geopointFrom: (data) => (data["geo"] as Map<String, dynamic>)["geopoint"] as GeoPoint,
-      queryBuilder: (query) => query.where('isVisible', isEqualTo: true),
+      // queryBuilder: (query) => query.where('isVisible', isEqualTo: true),
+      // queryBuilder: (query) => query.orderBy('createdAt', descending: true),
       strictMode: true,
     ),
   );
@@ -100,7 +101,7 @@ class MapViewState extends State<MapView> {
   Future<void> _updateMarkersByDocumentSnapshots(
     List<DocumentSnapshot<Map<String, dynamic>>> documentSnapshots,
   ) async {
-    final markers = <Marker>{};
+    final List<Marker> markers = [];
     final List<MarkerData> dataList = [];
     for (final ds in documentSnapshots) {
       final id = ds.id;
@@ -126,9 +127,9 @@ class MapViewState extends State<MapView> {
         final Uint8List uintData = await imageToUint8List(imageUrl, 100, 100);
         // Marker の icon に渡せるように Uint8List を BitmapDescriptor に変換
         final BitmapDescriptor imageBitmapDescriptor = BitmapDescriptor.fromBytes(uintData);
-        markers.add(_createImageMarker(geoPoint, imageBitmapDescriptor));
+        markers.add(_createImageMarker(id, geoPoint, imageBitmapDescriptor));
       } else {
-        markers.add(_createMarker(geoPoint));
+        markers.add(_createMarker(id, geoPoint));
       }
 
       // markers に合わせ、 MarkerData も作成
@@ -152,7 +153,13 @@ class MapViewState extends State<MapView> {
     setState(() {
       _markers = markers;
       markerDataList = dataList;
+      if (currentMarkerId == "" || markers.indexWhere((marker) => marker.markerId.toString() == currentMarkerId) < 0) {
+        currentMarkerId = markers.elementAt(0).markerId.toString();
+      }
     });
+
+    final index = markers.indexWhere((marker) => marker.markerId.toString() == currentMarkerId);
+    pageController.jumpToPage(index);
   }
 
   // 画像URLを受け取り、 Uint8List に変換して返す
@@ -169,18 +176,18 @@ class MapViewState extends State<MapView> {
   }
 
   // マップに落とすサムネイルマーカーを作成
-  Marker _createImageMarker(GeoPoint geoPoint, BitmapDescriptor imageBitmapDescriptor) {
+  Marker _createImageMarker(String id, GeoPoint geoPoint, BitmapDescriptor imageBitmapDescriptor) {
     return Marker(
-      markerId: MarkerId("(${geoPoint.latitude}, ${geoPoint.longitude})"),
+      markerId: MarkerId(id),
       position: LatLng(geoPoint.latitude, geoPoint.longitude),
       icon: imageBitmapDescriptor,
     );
   }
 
   // マップに落とすマーカーを作成
-  Marker _createMarker(GeoPoint geoPoint) {
+  Marker _createMarker(String id, GeoPoint geoPoint) {
     return Marker(
-      markerId: MarkerId("(${geoPoint.latitude}, ${geoPoint.longitude})"),
+      markerId: MarkerId(id),
       position: LatLng(geoPoint.latitude, geoPoint.longitude),
     );
   }
@@ -217,6 +224,9 @@ class MapViewState extends State<MapView> {
   // 位置情報
   late LocationPermission locationPermission;
   final Completer<GoogleMapController> _googleMapController = Completer<GoogleMapController>();
+
+  // PageView で表示中のマーカーID
+  String currentMarkerId = "";
 
   // 現在地を取得するための権限を取得
   Future<void> _getLocationPermission() async {
@@ -281,7 +291,7 @@ class MapViewState extends State<MapView> {
 
               _stream.listen(_updateMarkersByDocumentSnapshots);
             },
-            markers: _markers,
+            markers: _markers.toSet(),
             circles: {
               Circle(
                 circleId: const CircleId("value"),
@@ -343,8 +353,8 @@ class MapViewState extends State<MapView> {
                 Slider(
                   value: _radiusInKm,
                   min: 1,
-                  max: 100,
-                  divisions: 99,
+                  max: 10,
+                  divisions: 9,
                   label: _radiusInKm.toStringAsFixed(1),
                   // 検索半径の変化によって _geoQueryCondition を追加
                   onChanged: (value) => _geoQueryCondition.add(
@@ -396,9 +406,24 @@ class MapViewState extends State<MapView> {
                     controller: pageController,
                     itemCount: markerDataList.length,
                     onPageChanged: (int index) async {
-                      // スワイプ後のマーカー
-                      // final marker = _markers.elementAt(index);
+                      final marker = _markers.elementAt(index); // スワイプ後のマーカー
+                      // final completer = await _googleMapController.future;
 
+                      // カメラの中心を選択されたマーカーに移動
+                      // completer.animateCamera(
+                      //   CameraUpdate.newCameraPosition(
+                      //     CameraPosition(
+                      //       target: LatLng(marker.position.latitude, marker.position.longitude),
+                      //       zoom: _initialZoom,
+                      //     ),
+                      //   ),
+                      // );
+
+                      setState(() {
+                        currentMarkerId = marker.markerId.toString();
+                      });
+
+                      // // 新しいカメラ位置を追加
                       // _geoQueryCondition.add(
                       //   _GeoQueryCondition(
                       //     radiusInKm: _radiusInKm,
@@ -440,8 +465,8 @@ class MapViewState extends State<MapView> {
                             children: [
                               if (markerDataList[index].imageUrl != "")
                                 SizedBox(
-                                  width: MediaQuery.of(context).size.height * 0.15,
-                                  height: MediaQuery.of(context).size.height * 0.15,
+                                  width: MediaQuery.of(context).size.height * 0.1,
+                                  height: MediaQuery.of(context).size.height * 0.1,
                                   child: CachedNetworkImage(imageUrl: markerDataList[index].imageUrl),
                                 ),
                               Container(

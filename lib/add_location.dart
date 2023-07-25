@@ -160,6 +160,7 @@ class AddLocationDialogState extends State<AddLocationDialog> {
       "iso": iso,
       "focalLength": focalLength,
       "isVisible": true,
+      "createdAt": Timestamp.now(),
     });
     debugPrint(
       "🌍 ロケーションを作成: "
