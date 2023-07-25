@@ -407,32 +407,10 @@ class MapViewState extends State<MapView> {
                     itemCount: markerDataList.length,
                     onPageChanged: (int index) async {
                       final marker = _markers.elementAt(index); // スワイプ後のマーカー
-                      // final completer = await _googleMapController.future;
-
-                      // カメラの中心を選択されたマーカーに移動
-                      // completer.animateCamera(
-                      //   CameraUpdate.newCameraPosition(
-                      //     CameraPosition(
-                      //       target: LatLng(marker.position.latitude, marker.position.longitude),
-                      //       zoom: _initialZoom,
-                      //     ),
-                      //   ),
-                      // );
 
                       setState(() {
                         currentMarkerId = marker.markerId.toString();
                       });
-
-                      // // 新しいカメラ位置を追加
-                      // _geoQueryCondition.add(
-                      //   _GeoQueryCondition(
-                      //     radiusInKm: _radiusInKm,
-                      //     cameraPosition: CameraPosition(
-                      //       target: marker.position,
-                      //       zoom: _initialZoom,
-                      //     ),
-                      //   ),
-                      // );
                     },
                     itemBuilder: (context, index) {
                       return GestureDetector(
