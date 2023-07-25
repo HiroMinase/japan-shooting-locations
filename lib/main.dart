@@ -418,16 +418,13 @@ class MapViewState extends State<MapView> {
                           showDialog<void>(
                             context: context,
                             builder: (context) => SetOrDeleteLocationDialog(
-                              id: markerDataList[index].firestoreDocumentId,
-                              name: markerDataList[index].name,
                               geoFirePoint: GeoFirePoint(
                                 GeoPoint(
                                   _markers.elementAt(index).position.latitude,
                                   _markers.elementAt(index).position.longitude,
                                 ),
                               ),
-                              imageUrl: markerDataList[index].imageUrl,
-                              imagePath: markerDataList[index].imagePath,
+                              markerdata: markerDataList[index],
                             ),
                           );
                         },
@@ -461,27 +458,11 @@ class MapViewState extends State<MapView> {
                                       ),
                                     ),
                                     Text(
-                                      markerDataList[index].camera,
+                                      "カメラ: ${markerDataList[index].camera}",
                                       style: const TextStyle(fontSize: 12),
                                     ),
                                     Text(
-                                      "${DateTime.parse(markerDataList[index].dateTime).year}年 ${DateTime.parse(markerDataList[index].dateTime).month}月 ${DateTime.parse(markerDataList[index].dateTime).hour}時",
-                                      style: const TextStyle(fontSize: 12),
-                                    ),
-                                    Text(
-                                      markerDataList[index].shutterSpeed,
-                                      style: const TextStyle(fontSize: 12),
-                                    ),
-                                    Text(
-                                      markerDataList[index].fNumber,
-                                      style: const TextStyle(fontSize: 12),
-                                    ),
-                                    Text(
-                                      markerDataList[index].iso,
-                                      style: const TextStyle(fontSize: 12),
-                                    ),
-                                    Text(
-                                      markerDataList[index].focalLength,
+                                      "撮影月: ${DateTime.parse(markerDataList[index].dateTime).year}年${DateTime.parse(markerDataList[index].dateTime).month}月",
                                       style: const TextStyle(fontSize: 12),
                                     ),
                                   ],
