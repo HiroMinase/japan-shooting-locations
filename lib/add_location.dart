@@ -2,6 +2,7 @@ import "dart:io";
 
 import "package:cloud_firestore/cloud_firestore.dart";
 import "package:file_picker/file_picker.dart";
+import 'package:exif/exif.dart';
 import "package:firebase_storage/firebase_storage.dart";
 import "package:flutter/material.dart";
 import "package:geoflutterfire_plus/geoflutterfire_plus.dart";
@@ -23,6 +24,13 @@ class AddLocationDialogState extends State<AddLocationDialog> {
   final _longitudeEditingController = TextEditingController();
   String imageUploadedPath = "";
   String imageUploadedUrl = "";
+  String camera = "";
+  String software = "";
+  String dateTime = "";
+  String shutterSpeed = "";
+  String fNumber = "";
+  String iso = "";
+  String focalLength = "";
 
   @override
   void initState() {
@@ -91,7 +99,6 @@ class AddLocationDialogState extends State<AddLocationDialog> {
             child: const Text("写真を選ぶ"),
           ),
           const SizedBox(height: 16),
-          // TODO: Exif 情報も保存したい
           ElevatedButton(
             onPressed: () async {
               final navigator = Navigator.of(context);
@@ -107,13 +114,7 @@ class AddLocationDialogState extends State<AddLocationDialog> {
                 );
               }
               try {
-                await _addLocation(
-                  name,
-                  latitude,
-                  longitude,
-                  imageUploadedUrl,
-                  imageUploadedPath,
-                );
+                await _addLocation(name, latitude, longitude, imageUploadedUrl, imageUploadedPath, camera, software, dateTime, shutterSpeed, fNumber, iso, focalLength);
               } on Exception catch (e) {
                 debugPrint(
                   "🚨 ロケーション作成に失敗 $e",
@@ -135,6 +136,13 @@ class AddLocationDialogState extends State<AddLocationDialog> {
     double longitude,
     String imageUrl,
     String imagePath,
+    String camera,
+    String software,
+    String dateTime,
+    String shutterSpeed,
+    String fNumber,
+    String iso,
+    String focalLength,
   ) async {
     final geoFirePoint = GeoFirePoint(GeoPoint(latitude, longitude));
     await GeoCollectionReference<Map<String, dynamic>>(
@@ -144,6 +152,13 @@ class AddLocationDialogState extends State<AddLocationDialog> {
       "name": name,
       "imageUrl": imageUrl,
       "imagePath": imagePath,
+      "camera": camera,
+      "software": software,
+      "dateTime": dateTime,
+      "shutterSpeed": shutterSpeed,
+      "fNumber": fNumber,
+      "iso": iso,
+      "focalLength": focalLength,
       "isVisible": true,
     });
     debugPrint(
@@ -171,6 +186,22 @@ class AddLocationDialogState extends State<AddLocationDialog> {
       final int timestamp = DateTime.now().microsecondsSinceEpoch;
       // ファイルのパス
       final File file = File(result.files.single.path!);
+      final exifData = await readExifFromBytes(await file.readAsBytes());
+
+      exifData.forEach((key, value) {
+        print("$key: $value");
+      });
+
+      final cameraFromExif = exifData["Image Model"].toString();
+      final softwareFromExif = exifData["Image Software"].toString();
+      final dateTimeFromExif = exifData["EXIF DateTimeOriginal"].toString().replaceFirst(':', '-').replaceFirst(':', '-');
+      final shutterSpeedFromExif = exifData["EXIF ExposureTime"].toString();
+      final fNumberList = exifData["EXIF FNumber"].toString().split("/");
+      final fullFNumber = fNumberList.length == 2 ? int.parse(fNumberList[0]) / int.parse(fNumberList[1]) : 0.0;
+      final fNumberFromExif = fullFNumber == 0 ? "null" : fullFNumber.toStringAsFixed(1);
+      final isoFromExif = exifData["EXIF ISOSpeedRatings"].toString();
+      final focalLengthFromExif = exifData["EXIF FocalLengthIn35mmFilm"].toString();
+
       // パスを/で区切った最後の値をnameに入れる
       final String name = file.path.split('/').last;
       final String path = '${timestamp}_$name';
@@ -188,6 +219,13 @@ class AddLocationDialogState extends State<AddLocationDialog> {
       setState(() {
         imageUploadedUrl = imageUrl;
         imageUploadedPath = imagePath;
+        camera = cameraFromExif;
+        software = softwareFromExif;
+        dateTime = dateTimeFromExif;
+        shutterSpeed = shutterSpeedFromExif;
+        fNumber = fNumberFromExif;
+        iso = isoFromExif;
+        focalLength = focalLengthFromExif;
       });
     }
   }

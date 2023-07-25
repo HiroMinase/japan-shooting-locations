@@ -112,6 +112,13 @@ class MapViewState extends State<MapView> {
       final geoPoint = (data["geo"] as Map<String, dynamic>)["geopoint"] as GeoPoint;
       final imageUrl = data["imageUrl"] as String;
       final imagePath = data["imagePath"] as String;
+      final camera = data["camera"] as String;
+      final software = data["software"] as String;
+      final dateTime = data["dateTime"] as String;
+      final shutterSpeed = data["shutterSpeed"] as String;
+      final fNumber = data["fNumber"] as String;
+      final iso = data["iso"] as String;
+      final focalLength = data["focalLength"] as String;
 
       // マーカーにサムネイルを表示する場合
       if (imageUrl != "" && isDisplayThumbnail) {
@@ -131,6 +138,13 @@ class MapViewState extends State<MapView> {
           name: name,
           imageUrl: imageUrl,
           imagePath: imagePath,
+          camera: camera,
+          software: software,
+          dateTime: dateTime,
+          shutterSpeed: shutterSpeed,
+          fNumber: fNumber,
+          iso: iso,
+          focalLength: focalLength,
         ),
       );
     }
@@ -344,7 +358,7 @@ class MapViewState extends State<MapView> {
             ),
           ),
           Container(
-            margin: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.15 * 1.2),
+            margin: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.20 * 1.1),
             child: Align(
               alignment: Alignment.bottomCenter,
               child: GestureDetector(
@@ -362,6 +376,7 @@ class MapViewState extends State<MapView> {
                     "現在地を取得",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
                     ),
                   ),
                 ),
@@ -374,7 +389,7 @@ class MapViewState extends State<MapView> {
               child: Container(
                 color: Colors.black26,
                 width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height * 0.15,
+                height: MediaQuery.of(context).size.height * 0.20,
                 child: Container(
                   margin: const EdgeInsets.all(5.0),
                   child: PageView.builder(
@@ -423,17 +438,48 @@ class MapViewState extends State<MapView> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
-                              if (markerDataList[index].imageUrl != "") CachedNetworkImage(imageUrl: markerDataList[index].imageUrl),
+                              if (markerDataList[index].imageUrl != "")
+                                SizedBox(
+                                  width: MediaQuery.of(context).size.height * 0.15,
+                                  height: MediaQuery.of(context).size.height * 0.15,
+                                  child: CachedNetworkImage(imageUrl: markerDataList[index].imageUrl),
+                                ),
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       markerDataList[index].name,
                                       style: const TextStyle(
                                         fontWeight: FontWeight.bold,
+                                        fontSize: 12,
                                       ),
+                                    ),
+                                    Text(
+                                      markerDataList[index].camera,
+                                      style: const TextStyle(fontSize: 12),
+                                    ),
+                                    Text(
+                                      "${DateTime.parse(markerDataList[index].dateTime).year}年 ${DateTime.parse(markerDataList[index].dateTime).month}月 ${DateTime.parse(markerDataList[index].dateTime).hour}時",
+                                      style: const TextStyle(fontSize: 12),
+                                    ),
+                                    Text(
+                                      markerDataList[index].shutterSpeed,
+                                      style: const TextStyle(fontSize: 12),
+                                    ),
+                                    Text(
+                                      markerDataList[index].fNumber,
+                                      style: const TextStyle(fontSize: 12),
+                                    ),
+                                    Text(
+                                      markerDataList[index].iso,
+                                      style: const TextStyle(fontSize: 12),
+                                    ),
+                                    Text(
+                                      markerDataList[index].focalLength,
+                                      style: const TextStyle(fontSize: 12),
                                     ),
                                   ],
                                 ),
