@@ -414,9 +414,7 @@ class MapViewState extends State<MapView> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  onPressed: () {
-                    html.window.open(url, '');
-                  },
+                  onPressed: () {},
                   icon: const Icon(
                     Icons.emoji_objects,
                     color: Colors.amber,
