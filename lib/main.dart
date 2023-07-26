@@ -377,7 +377,7 @@ class MapViewState extends State<MapView> {
               children: [
                 const SizedBox(height: 8),
                 Text(
-                  "範囲内のピン: ${_markers.length}個",
+                  "範囲内のロケーション: ${_markers.length}個",
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,
@@ -406,6 +406,30 @@ class MapViewState extends State<MapView> {
                     ),
                   ),
                 ),
+                const SizedBox(height: 8),
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  onPressed: () {
+                    html.window.open(url, '');
+                  },
+                  icon: const Icon(
+                    Icons.emoji_objects,
+                    color: Colors.amber,
+                  ),
+                  label: const Text(
+                    "機能の要望やバグ報告",
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                )
               ],
             ),
           ),
@@ -425,7 +449,7 @@ class MapViewState extends State<MapView> {
                     borderRadius: BorderRadius.circular(25),
                   ),
                   child: const Text(
-                    "現在地を取得",
+                    "現在地に移動",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       letterSpacing: 1.2,
