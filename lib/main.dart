@@ -14,12 +14,16 @@ import "package:rxdart/rxdart.dart";
 import "add_location.dart";
 import "marker_data.dart";
 import "set_or_delete_location.dart";
+import "webview.dart";
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
   runApp(const App());
 }
+
+// 初期位置に使用しているSSSの座標
+const LatLng shibuyaScrambleSquare = LatLng(35.6583931, 139.7023043);
 
 class App extends StatelessWidget {
   const App({super.key});
@@ -38,14 +42,6 @@ class App extends StatelessWidget {
     );
   }
 }
-
-// 初期位置に使用しているSSSの座標
-const shibuyaScrambleSquare = LatLng(35.6583931, 139.7023043);
-
-// 位置データが格納されているコレクションへの参照
-final _collectionReference = FirebaseFirestore.instance.collection("locations");
-
-bool isDisplayThumbnail = false;
 
 // 検索半径やカメラ位置などを管理
 class _GeoQueryCondition {
@@ -67,6 +63,10 @@ class MapView extends StatefulWidget {
 
 // GoogleMap を表示
 class MapViewState extends State<MapView> {
+  // 位置データが格納されているコレクションへの参照
+  final _collectionReference = FirebaseFirestore.instance.collection("locations");
+
+  bool isDisplayThumbnail = false;
   List<Marker> _markers = [];
   List<MarkerData> markerDataList = []; // _markers に対応する画像やタイトル、Exif情報を持つ
 
@@ -414,7 +414,12 @@ class MapViewState extends State<MapView> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                   ),
-                  onPressed: () {},
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => const WebView()),
+                    );
+                  },
                   icon: const Icon(
                     Icons.emoji_objects,
                     color: Colors.amber,
