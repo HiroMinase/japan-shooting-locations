@@ -181,6 +181,27 @@ class MapViewState extends State<MapView> {
       markerId: MarkerId(id),
       position: LatLng(geoPoint.latitude, geoPoint.longitude),
       icon: imageBitmapDescriptor,
+      onTap: () async {
+        final controller = await _googleMapController.future;
+        final zoomLevel = await controller.getZoomLevel();
+
+        // タップされたマーカーをカメラの中心に
+        await controller.animateCamera(
+          CameraUpdate.newCameraPosition(
+            CameraPosition(
+              target: LatLng(geoPoint.latitude, geoPoint.longitude),
+              zoom: zoomLevel,
+            ),
+          ),
+        );
+
+        // 選択されたマーカーのPageを表示
+        setState(() {
+          currentMarkerId = id;
+        });
+        final index = markerDataList.indexWhere((markerData) => markerData.firestoreDocumentId == id);
+        pageController.jumpToPage(index);
+      },
     );
   }
 
@@ -189,6 +210,27 @@ class MapViewState extends State<MapView> {
     return Marker(
       markerId: MarkerId(id),
       position: LatLng(geoPoint.latitude, geoPoint.longitude),
+      onTap: () async {
+        final controller = await _googleMapController.future;
+        final zoomLevel = await controller.getZoomLevel();
+
+        // タップされたマーカーをカメラの中心に
+        await controller.animateCamera(
+          CameraUpdate.newCameraPosition(
+            CameraPosition(
+              target: LatLng(geoPoint.latitude, geoPoint.longitude),
+              zoom: zoomLevel,
+            ),
+          ),
+        );
+
+        // 選択されたマーカーのPageを表示
+        setState(() {
+          currentMarkerId = id;
+        });
+        final index = markerDataList.indexWhere((markerData) => markerData.firestoreDocumentId == id);
+        pageController.jumpToPage(index);
+      },
     );
   }
 
