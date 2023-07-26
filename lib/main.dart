@@ -368,7 +368,7 @@ class MapViewState extends State<MapView> {
             ),
           ),
           Container(
-            margin: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.20 * 1.1),
+            margin: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.15 * 1.1),
             child: Align(
               alignment: Alignment.bottomCenter,
               child: GestureDetector(
@@ -399,7 +399,7 @@ class MapViewState extends State<MapView> {
               child: Container(
                 color: Colors.black26,
                 width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height * 0.20,
+                height: MediaQuery.of(context).size.height * 0.15,
                 child: Container(
                   margin: const EdgeInsets.all(5.0),
                   child: PageView.builder(
@@ -447,19 +447,15 @@ class MapViewState extends State<MapView> {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
                                 child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       markerDataList[index].name,
                                       style: const TextStyle(
                                         fontWeight: FontWeight.bold,
-                                        fontSize: 12,
+                                        fontSize: 14,
                                       ),
-                                    ),
-                                    Text(
-                                      "カメラ: ${markerDataList[index].camera}",
-                                      style: const TextStyle(fontSize: 12),
                                     ),
                                     Text(
                                       "撮影月: ${DateTime.parse(markerDataList[index].dateTime).year}年${DateTime.parse(markerDataList[index].dateTime).month}月",
