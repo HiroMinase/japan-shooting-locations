@@ -475,11 +475,13 @@ class MapViewState extends State<MapView> {
                     controller: pageController,
                     itemCount: markerDataList.length,
                     onPageChanged: (int index) async {
-                      final marker = _markers.elementAt(index); // スワイプ後のマーカー
+                      if (_markers.isNotEmpty) {
+                        final marker = _markers.elementAt(index); // スワイプ後のマーカー
 
-                      setState(() {
-                        currentMarkerId = marker.markerId.toString();
-                      });
+                        setState(() {
+                          currentMarkerId = marker.markerId.toString();
+                        });
+                      }
                     },
                     itemBuilder: (context, index) {
                       return GestureDetector(
