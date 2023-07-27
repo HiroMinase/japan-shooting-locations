@@ -513,24 +513,29 @@ class MapViewState extends State<MapView> {
                                   height: MediaQuery.of(context).size.height * 0.1,
                                   child: CachedNetworkImage(imageUrl: markerDataList[index].imageUrl),
                                 ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      markerDataList[index].name,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 14,
+                              Expanded(
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        markerDataList[index].name,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14,
+                                        ),
                                       ),
-                                    ),
-                                    Text(
-                                      "撮影月: ${DateTime.parse(markerDataList[index].dateTime).year}年${DateTime.parse(markerDataList[index].dateTime).month}月",
-                                      style: const TextStyle(fontSize: 12),
-                                    ),
-                                  ],
+                                      Text(
+                                        "撮影月: ${DateTime.parse(markerDataList[index].dateTime).year}年${DateTime.parse(markerDataList[index].dateTime).month}月",
+                                        style: const TextStyle(fontSize: 12),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ],

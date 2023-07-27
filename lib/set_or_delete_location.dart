@@ -42,11 +42,13 @@ class SetOrDeleteLocationDialog extends StatelessWidget {
           Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(
-                markerdata.name,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
+              Flexible(
+                child: Text(
+                  markerdata.name,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
               ExifTableContainer(markerdata: markerdata),
@@ -60,7 +62,6 @@ class SetOrDeleteLocationDialog extends StatelessWidget {
                       builder: (_) => SetLocationDialog(
                         id: markerdata.firestoreDocumentId,
                         name: markerdata.name,
-                        geoFirePoint: geoFirePoint,
                         imageUrl: markerdata.imageUrl,
                       ),
                     ),
