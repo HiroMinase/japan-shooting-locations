@@ -104,11 +104,11 @@ class AddLocationDialogState extends State<AddLocationDialog> {
               if (name.isEmpty) {
                 throw Exception("名前を入力してください");
               }
-              if (imageFile != null) {
+              if (imageFile == null) {
                 throw Exception("写真を選択してください");
               }
               try {
-                await _addLocation(name, latitude, longitude, imageFile!, camera, software, dateTime, shutterSpeed, fNumber, iso, focalLength);
+                await _addLocation(name, latitude, longitude, imageFile!, markerdata);
               } on Exception catch (e) {
                 debugPrint(
                   "🚨 ロケーション作成に失敗 $e",
@@ -132,13 +132,7 @@ class AddLocationDialogState extends State<AddLocationDialog> {
     double latitude,
     double longitude,
     File file,
-    String camera,
-    String software,
-    String dateTime,
-    String shutterSpeed,
-    String fNumber,
-    String iso,
-    String focalLength,
+    MarkerData markerdata,
   ) async {
     final geoFirePoint = GeoFirePoint(GeoPoint(latitude, longitude));
 
@@ -150,13 +144,13 @@ class AddLocationDialogState extends State<AddLocationDialog> {
       "geo": geoFirePoint.data,
       "name": name,
       "imageUrl": uploadedLink,
-      "camera": camera,
-      "software": software,
-      "dateTime": dateTime,
-      "shutterSpeed": shutterSpeed,
-      "fNumber": fNumber,
-      "iso": iso,
-      "focalLength": focalLength,
+      "camera": markerdata.camera,
+      "software": markerdata.software,
+      "dateTime": markerdata.dateTime,
+      "shutterSpeed": markerdata.shutterSpeed,
+      "fNumber": markerdata.fNumber,
+      "iso": markerdata.iso,
+      "focalLength": markerdata.focalLength,
       "isVisible": true,
       "createdAt": Timestamp.now(),
     });

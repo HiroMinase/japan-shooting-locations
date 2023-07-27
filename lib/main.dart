@@ -143,7 +143,7 @@ class MapViewState extends State<MapView> {
           shutterSpeed: shutterSpeed,
           fNumber: fNumber,
           iso: iso,
-          focalLength: "${focalLength}mm",
+          focalLength: focalLength,
         ),
       );
     }
@@ -151,8 +151,10 @@ class MapViewState extends State<MapView> {
     setState(() {
       _markers = markers;
       markerDataList = dataList;
-      if (currentMarkerId == "" || markers.indexWhere((marker) => marker.markerId.toString() == currentMarkerId) < 0) {
-        currentMarkerId = markers.elementAt(0).markerId.toString();
+      if (markers.isNotEmpty) {
+        if (currentMarkerId == "" || markers.indexWhere((marker) => marker.markerId.toString() == currentMarkerId) < 0) {
+          currentMarkerId = markers.elementAt(0).markerId.toString();
+        }
       }
     });
 
