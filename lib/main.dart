@@ -112,7 +112,6 @@ class MapViewState extends State<MapView> {
       final name = data["name"] as String;
       final geoPoint = (data["geo"] as Map<String, dynamic>)["geopoint"] as GeoPoint;
       final imageUrl = data["imageUrl"] as String;
-      final imagePath = data["imagePath"] as String;
       final camera = data["camera"] as String;
       final software = data["software"] as String;
       final dateTime = data["dateTime"] as String;
@@ -138,14 +137,13 @@ class MapViewState extends State<MapView> {
           firestoreDocumentId: id,
           name: name,
           imageUrl: imageUrl,
-          imagePath: imagePath,
           camera: camera,
           software: software,
           dateTime: dateTime,
           shutterSpeed: shutterSpeed,
           fNumber: fNumber,
           iso: iso,
-          focalLength: focalLength,
+          focalLength: "${focalLength}mm",
         ),
       );
     }

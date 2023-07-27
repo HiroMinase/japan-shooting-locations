@@ -3,7 +3,6 @@ class MarkerData {
     required this.firestoreDocumentId,
     required this.name,
     required this.imageUrl,
-    required this.imagePath,
     required this.camera,
     required this.software,
     required this.dateTime,
@@ -16,7 +15,6 @@ class MarkerData {
   final String firestoreDocumentId;
   final String name;
   final String imageUrl;
-  final String imagePath;
   final String camera;
   final String software;
   final String dateTime;

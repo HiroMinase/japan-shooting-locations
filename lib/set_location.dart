@@ -10,14 +10,12 @@ class SetLocationDialog extends StatefulWidget {
     required this.name,
     required this.geoFirePoint,
     required this.imageUrl,
-    required this.imagePath,
   });
 
   final String id;
   final String name;
   final GeoFirePoint geoFirePoint;
   final String imageUrl;
-  final String imagePath;
 
   @override
   State<SetLocationDialog> createState() => _SetLocationDialogState();

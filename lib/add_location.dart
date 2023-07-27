@@ -7,6 +7,9 @@ import "package:firebase_storage/firebase_storage.dart";
 import "package:flutter/material.dart";
 import "package:geoflutterfire_plus/geoflutterfire_plus.dart";
 import "package:google_maps_flutter/google_maps_flutter.dart";
+import "package:japan_shooting_locations/marker_data.dart";
+
+import "exif_table_container.dart";
 
 // ロケーション作成用のダイアログ
 class AddLocationDialog extends StatefulWidget {
@@ -20,9 +23,21 @@ class AddLocationDialog extends StatefulWidget {
 
 class AddLocationDialogState extends State<AddLocationDialog> {
   final _nameEditingController = TextEditingController();
-  final _latitudeEditingController = TextEditingController();
-  final _longitudeEditingController = TextEditingController();
-  String imageUploadedPath = "";
+  late double latitude;
+  late double longitude;
+  File? imageFile;
+  MarkerData markerdata = MarkerData(
+    firestoreDocumentId: "",
+    name: "",
+    imageUrl: "",
+    camera: "",
+    software: "",
+    dateTime: "",
+    shutterSpeed: "",
+    fNumber: "",
+    iso: "",
+    focalLength: "",
+  );
   String imageUploadedUrl = "";
   String camera = "";
   String software = "";
@@ -34,18 +49,15 @@ class AddLocationDialogState extends State<AddLocationDialog> {
 
   @override
   void initState() {
+    latitude = widget.latLng!.latitude;
+    longitude = widget.latLng!.longitude;
+
     super.initState();
-    if (widget.latLng != null) {
-      _latitudeEditingController.text = widget.latLng!.latitude.toString();
-      _longitudeEditingController.text = widget.latLng!.longitude.toString();
-    }
   }
 
   @override
   void dispose() {
     _nameEditingController.dispose();
-    _latitudeEditingController.dispose();
-    _longitudeEditingController.dispose();
     super.dispose();
   }
 
@@ -70,34 +82,20 @@ class AddLocationDialogState extends State<AddLocationDialog> {
             ),
           ),
           const SizedBox(height: 16),
-          TextField(
-            controller: _latitudeEditingController,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              label: const Text("緯度"),
-            ),
-          ),
-          const SizedBox(height: 16),
-          TextField(
-            controller: _longitudeEditingController,
-            keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              label: const Text("経度"),
-            ),
-          ),
+          if (imageFile != null) Image.file(imageFile!, height: MediaQuery.of(context).size.height * 0.2),
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () async {
-              _uploadImage();
+              _importImage();
             },
-            child: const Text("写真を選ぶ"),
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.yellow),
+            child: const Text(
+              "写真を選ぶ",
+              style: TextStyle(color: Colors.black87),
+            ),
           ),
+          const SizedBox(height: 16),
+          ExifTableContainer(markerdata: markerdata),
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: () async {
@@ -106,15 +104,11 @@ class AddLocationDialogState extends State<AddLocationDialog> {
               if (name.isEmpty) {
                 throw Exception("名前を入力してください");
               }
-              final latitude = double.tryParse(_latitudeEditingController.value.text);
-              final longitude = double.tryParse(_longitudeEditingController.value.text);
-              if (latitude == null || longitude == null) {
-                throw Exception(
-                  "緯度経度に不正な値があります",
-                );
+              if (imageFile != null) {
+                throw Exception("写真を選択してください");
               }
               try {
-                await _addLocation(name, latitude, longitude, imageUploadedUrl, imageUploadedPath, camera, software, dateTime, shutterSpeed, fNumber, iso, focalLength);
+                await _addLocation(name, latitude, longitude, imageFile!, camera, software, dateTime, shutterSpeed, fNumber, iso, focalLength);
               } on Exception catch (e) {
                 debugPrint(
                   "🚨 ロケーション作成に失敗 $e",
@@ -122,7 +116,10 @@ class AddLocationDialogState extends State<AddLocationDialog> {
               }
               navigator.pop();
             },
-            child: const Text("作成"),
+            child: const Text(
+              "作成",
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),
@@ -134,8 +131,7 @@ class AddLocationDialogState extends State<AddLocationDialog> {
     String name,
     double latitude,
     double longitude,
-    String imageUrl,
-    String imagePath,
+    File file,
     String camera,
     String software,
     String dateTime,
@@ -145,13 +141,15 @@ class AddLocationDialogState extends State<AddLocationDialog> {
     String focalLength,
   ) async {
     final geoFirePoint = GeoFirePoint(GeoPoint(latitude, longitude));
+
+    final uploadedLink = await _uploadImage(file);
+
     await GeoCollectionReference<Map<String, dynamic>>(
       FirebaseFirestore.instance.collection("locations"),
     ).add(<String, dynamic>{
       "geo": geoFirePoint.data,
       "name": name,
-      "imageUrl": imageUrl,
-      "imagePath": imagePath,
+      "imageUrl": uploadedLink,
       "camera": camera,
       "software": software,
       "dateTime": dateTime,
@@ -168,13 +166,12 @@ class AddLocationDialogState extends State<AddLocationDialog> {
       "lat: $latitude, "
       "lng: $longitude, "
       "geohash: ${geoFirePoint.geohash}, "
-      "imageURL: $imageUrl, "
-      "imagePath: $imagePath, ",
+      "imageURL: $uploadedLink, ",
     );
   }
 
-  // 画像を Cloud Storage にアップロードし、 URL と Path を取得
-  Future<void> _uploadImage() async {
+  // 画像を選択させ、
+  Future<void> _importImage() async {
     // 画像ファイルを選択
     final FilePickerResult? result = await FilePicker.platform.pickFiles(
       type: FileType.image,
@@ -182,16 +179,12 @@ class AddLocationDialogState extends State<AddLocationDialog> {
 
     // 画像ファイルが選択された場合
     if (result != null) {
-      // フォルダとファイル名を指定し画像ファイルをアップロード
-      // 日時をエポックミリ秒に変換
-      final int timestamp = DateTime.now().microsecondsSinceEpoch;
-      // ファイルのパス
+      setState(() {
+        imageFile = File(result.files.single.path!);
+      });
+
       final File file = File(result.files.single.path!);
       final exifData = await readExifFromBytes(await file.readAsBytes());
-
-      exifData.forEach((key, value) {
-        print("$key: $value");
-      });
 
       final cameraFromExif = exifData["Image Model"].toString();
       final softwareFromExif = exifData["Image Software"].toString();
@@ -203,31 +196,35 @@ class AddLocationDialogState extends State<AddLocationDialog> {
       final isoFromExif = exifData["EXIF ISOSpeedRatings"].toString();
       final focalLengthFromExif = exifData["EXIF FocalLengthIn35mmFilm"].toString();
 
-      // パスを/で区切った最後の値をnameに入れる
-      final String name = file.path.split('/').last;
-      final String path = '${timestamp}_$name';
-      final TaskSnapshot task = await FirebaseStorage.instance
-          .ref()
-          .child("images") // フォルダ名
-          .child(path) // ファイル名
-          .putFile(file); // 画像ファイル
-
-      // アップロードした画像のURLを取得
-      final String imageUrl = await task.ref.getDownloadURL();
-      // アップロードした画像の保存先を取得
-      final String imagePath = task.ref.fullPath;
-
       setState(() {
-        imageUploadedUrl = imageUrl;
-        imageUploadedPath = imagePath;
-        camera = cameraFromExif;
-        software = softwareFromExif;
-        dateTime = dateTimeFromExif;
-        shutterSpeed = shutterSpeedFromExif;
-        fNumber = fNumberFromExif;
-        iso = isoFromExif;
-        focalLength = focalLengthFromExif;
+        markerdata = MarkerData(
+          firestoreDocumentId: "",
+          name: _nameEditingController.value.text,
+          imageUrl: "",
+          camera: cameraFromExif,
+          software: softwareFromExif,
+          dateTime: dateTimeFromExif,
+          shutterSpeed: shutterSpeedFromExif,
+          fNumber: fNumberFromExif,
+          iso: isoFromExif,
+          focalLength: "${focalLengthFromExif}mm",
+        );
       });
     }
+  }
+
+  // 画像を Cloud Storage にアップロードし、 URL と Path を取得
+  Future<String> _uploadImage(file) async {
+    final int timestamp = DateTime.now().microsecondsSinceEpoch; // 日時をエポックミリ秒に変換
+    final String fileExtension = file.path.split(".").last; // 画像パスから拡張子を取得
+    final String path = "$timestamp.$fileExtension"; // 日付 + 拡張子のファイル名を生成
+    final TaskSnapshot task = await FirebaseStorage.instance
+        .ref()
+        .child("images") // フォルダ名
+        .child(path) // ファイル名
+        .putFile(file); // 画像ファイル
+
+    // アップロードした画像のURLを返す
+    return await task.ref.getDownloadURL();
   }
 }
