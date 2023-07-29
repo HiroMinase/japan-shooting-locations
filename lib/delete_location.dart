@@ -1,3 +1,4 @@
+import "package:cached_network_image/cached_network_image.dart";
 import "package:cloud_firestore/cloud_firestore.dart";
 import "package:firebase_storage/firebase_storage.dart";
 import "package:flutter/material.dart";
@@ -9,29 +10,38 @@ class DeleteLocationDialog extends StatelessWidget {
     super.key,
     required this.id,
     required this.name,
-    required this.geoFirePoint,
     required this.imageUrl,
   });
 
   final String id;
   final String name;
-  final GeoFirePoint geoFirePoint;
   final String imageUrl;
 
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: imageUrl != "" ? Image.network(imageUrl, height: 200, fit: BoxFit.cover) : null,
       content: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
+          Container(
+            padding: const EdgeInsets.only(bottom: 10.0),
+            constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.4),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: CachedNetworkImage(
+              imageUrl: imageUrl,
+              placeholder: (context, url) => const SizedBox(
+                width: 50,
+                height: 50,
+                child: Center(child: CircularProgressIndicator()),
+              ),
+              errorWidget: (context, url, error) => const Icon(Icons.error),
+            ),
+          ),
           Text("$nameを削除します"),
-          const SizedBox(height: 16),
-          Text("緯度: ${geoFirePoint.latitude}"),
-          const SizedBox(height: 16),
-          Text("経度: ${geoFirePoint.longitude}"),
           const SizedBox(height: 16),
           Align(
             child: ElevatedButton(

@@ -1,3 +1,4 @@
+import "package:cached_network_image/cached_network_image.dart";
 import "package:cloud_firestore/cloud_firestore.dart";
 import "package:flutter/material.dart";
 import "package:geoflutterfire_plus/geoflutterfire_plus.dart";
@@ -37,11 +38,26 @@ class _SetLocationDialogState extends State<SetLocationDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: widget.imageUrl != "" ? Image.network(widget.imageUrl, height: 200, fit: BoxFit.cover) : null,
       content: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
+          Container(
+            padding: const EdgeInsets.only(bottom: 10.0),
+            constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.4),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(15),
+            ),
+            child: CachedNetworkImage(
+              imageUrl: widget.imageUrl,
+              placeholder: (context, url) => const SizedBox(
+                width: 50,
+                height: 50,
+                child: Center(child: CircularProgressIndicator()),
+              ),
+              errorWidget: (context, url, error) => const Icon(Icons.error),
+            ),
+          ),
           Text("${widget.name}を編集"),
           const SizedBox(height: 16),
           TextField(

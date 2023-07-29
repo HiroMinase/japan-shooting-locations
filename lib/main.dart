@@ -126,9 +126,9 @@ class MapViewState extends State<MapView> {
         final Uint8List uintData = await imageToUint8List(imageUrl, 100, 100);
         // Marker の icon に渡せるように Uint8List を BitmapDescriptor に変換
         final BitmapDescriptor imageBitmapDescriptor = BitmapDescriptor.fromBytes(uintData);
-        markers.add(_createImageMarker(id, geoPoint, imageBitmapDescriptor));
+        markers.add(_createImageMarker(id, geoPoint, imageBitmapDescriptor, name));
       } else {
-        markers.add(_createMarker(id, geoPoint));
+        markers.add(_createMarker(id, geoPoint, name));
       }
 
       // markers に合わせ、 MarkerData も作成
@@ -176,11 +176,12 @@ class MapViewState extends State<MapView> {
   }
 
   // マップに落とすサムネイルマーカーを作成
-  Marker _createImageMarker(String id, GeoPoint geoPoint, BitmapDescriptor imageBitmapDescriptor) {
+  Marker _createImageMarker(String id, GeoPoint geoPoint, BitmapDescriptor imageBitmapDescriptor, String name) {
     return Marker(
       markerId: MarkerId(id),
       position: LatLng(geoPoint.latitude, geoPoint.longitude),
       icon: imageBitmapDescriptor,
+      infoWindow: InfoWindow(title: name),
       onTap: () async {
         final controller = await _googleMapController.future;
         final zoomLevel = await controller.getZoomLevel();
@@ -206,10 +207,11 @@ class MapViewState extends State<MapView> {
   }
 
   // マップに落とすマーカーを作成
-  Marker _createMarker(String id, GeoPoint geoPoint) {
+  Marker _createMarker(String id, GeoPoint geoPoint, String name) {
     return Marker(
       markerId: MarkerId(id),
       position: LatLng(geoPoint.latitude, geoPoint.longitude),
+      infoWindow: InfoWindow(title: name),
       onTap: () async {
         final controller = await _googleMapController.future;
         final zoomLevel = await controller.getZoomLevel();
@@ -368,7 +370,7 @@ class MapViewState extends State<MapView> {
             padding: const EdgeInsets.all(16),
             decoration: const BoxDecoration(
               color: Colors.black54,
-              borderRadius: BorderRadius.all(Radius.circular(8)),
+              borderRadius: BorderRadius.all(Radius.circular(15)),
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -411,7 +413,7 @@ class MapViewState extends State<MapView> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                      borderRadius: BorderRadius.circular(15),
                     ),
                   ),
                   onPressed: () {
@@ -449,7 +451,7 @@ class MapViewState extends State<MapView> {
                   decoration: BoxDecoration(
                     color: Colors.yellow,
                     border: Border.all(color: Colors.white, width: 1.0),
-                    borderRadius: BorderRadius.circular(25),
+                    borderRadius: BorderRadius.circular(15),
                   ),
                   child: const Text(
                     "現在地に移動",
@@ -503,7 +505,7 @@ class MapViewState extends State<MapView> {
                           margin: const EdgeInsets.all(10),
                           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 15.0),
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(15),
                             color: Colors.white,
                           ),
                           child: Row(

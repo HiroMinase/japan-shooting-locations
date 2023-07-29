@@ -29,6 +29,9 @@ class SetOrDeleteLocationDialog extends StatelessWidget {
           Container(
             padding: const EdgeInsets.only(bottom: 10.0),
             constraints: BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.4),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(15),
+            ),
             child: CachedNetworkImage(
               imageUrl: markerdata.imageUrl,
               placeholder: (context, url) => const SizedBox(
@@ -74,7 +77,6 @@ class SetOrDeleteLocationDialog extends StatelessWidget {
                       builder: (_) => DeleteLocationDialog(
                         id: markerdata.firestoreDocumentId,
                         name: markerdata.name,
-                        geoFirePoint: geoFirePoint,
                         imageUrl: markerdata.imageUrl,
                       ),
                     ),

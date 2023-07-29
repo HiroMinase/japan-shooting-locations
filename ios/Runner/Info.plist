@@ -26,6 +26,10 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>現在地を取得するため位置情報サービスへのアクセスが必要です</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>写真をアップロードするため、カメラロールへのアクセスが必要になります</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UILaunchStoryboardName</key>
@@ -47,9 +51,5 @@
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>写真をアップロードするため、カメラロールへのアクセスが必要になります</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>現在地を取得するため位置情報サービスへのアクセスが必要です</string>
 </dict>
 </plist>
