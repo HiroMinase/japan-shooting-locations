@@ -180,15 +180,19 @@ class AddLocationDialogState extends State<AddLocationDialog> {
       final File file = File(result.files.single.path!);
       final exifData = await readExifFromBytes(await file.readAsBytes());
 
-      final cameraFromExif = exifData["Image Model"].toString();
-      final softwareFromExif = exifData["Image Software"].toString();
-      final dateTimeFromExif = exifData["EXIF DateTimeOriginal"].toString().replaceFirst(':', '-').replaceFirst(':', '-');
-      final shutterSpeedFromExif = exifData["EXIF ExposureTime"].toString();
-      final fNumberList = exifData["EXIF FNumber"].toString().split("/");
-      final fullFNumber = fNumberList.length == 2 ? int.parse(fNumberList[0]) / int.parse(fNumberList[1]) : 0.0;
-      final fNumberFromExif = fullFNumber == 0 ? "null" : fullFNumber.toStringAsFixed(1);
-      final isoFromExif = exifData["EXIF ISOSpeedRatings"].toString();
-      final focalLengthFromExif = exifData["EXIF FocalLengthIn35mmFilm"].toString();
+      exifData.forEach((key, value) {
+        print("$key: $value");
+      });
+
+      final cameraFromExif = exifData["Image Model"].toString(); // カメラの種類
+      final softwareFromExif = exifData["Image Software"].toString(); // 編集ソフト
+      final dateTimeFromExif = exifData["EXIF DateTimeOriginal"].toString().replaceFirst(':', '-').replaceFirst(':', '-'); // 撮影日
+      final shutterSpeedFromExif = exifData["EXIF ExposureTime"].toString(); // シャッタースピード
+      final fNumberList = exifData["EXIF FNumber"].toString().split("/"); // F値の分数
+      final fullFNumber = fNumberList.length == 2 ? int.parse(fNumberList[0]) / int.parse(fNumberList[1]) : 0.0; // 小数に変換
+      final fNumberFromExif = fullFNumber == 0 ? "null" : fullFNumber.toStringAsFixed(1); // 文字列に変換
+      final isoFromExif = exifData["EXIF ISOSpeedRatings"].toString(); // ISO
+      final focalLengthFromExif = exifData["EXIF FocalLengthIn35mmFilm"].toString(); // レンズの焦点距離
 
       setState(() {
         markerdata = MarkerData(

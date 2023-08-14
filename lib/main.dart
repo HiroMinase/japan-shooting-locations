@@ -31,7 +31,7 @@ class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: "Japan Shooting Locations",
+      title: "フォトピン",
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         sliderTheme: SliderThemeData(
