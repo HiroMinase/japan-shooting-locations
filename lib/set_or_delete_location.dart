@@ -3,7 +3,6 @@ import "package:flutter/material.dart";
 import "package:geoflutterfire_plus/geoflutterfire_plus.dart";
 import "package:japan_shooting_locations/marker_data.dart";
 
-import "delete_location.dart";
 import "exif_table_container.dart";
 import "set_location.dart";
 
@@ -69,18 +68,6 @@ class SetOrDeleteLocationDialog extends StatelessWidget {
                       ),
                     ),
                     child: const Text("編集する"),
-                  ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-                    onPressed: () => showDialog<void>(
-                      context: context,
-                      builder: (_) => DeleteLocationDialog(
-                        id: markerdata.firestoreDocumentId,
-                        name: markerdata.name,
-                        imageUrl: markerdata.imageUrl,
-                      ),
-                    ),
-                    child: const Text("削除する"),
                   ),
                 ],
               ),
