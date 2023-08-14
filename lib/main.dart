@@ -480,6 +480,10 @@ class MapViewState extends State<MapView> {
                       if (_markers.isNotEmpty) {
                         final marker = _markers.elementAt(index); // スワイプ後のマーカー
 
+                        // どのマーカーかわかるよう、ラベルを表示
+                        final controller = await _googleMapController.future;
+                        controller.showMarkerInfoWindow(marker.markerId);
+
                         setState(() {
                           currentMarkerId = marker.markerId.toString();
                         });
