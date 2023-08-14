@@ -4,7 +4,7 @@ import "package:firebase_storage/firebase_storage.dart";
 import "package:flutter/material.dart";
 import "package:geoflutterfire_plus/geoflutterfire_plus.dart";
 
-// ロケーション削除用のダイアログ
+// 撮影スポット削除用のダイアログ
 class DeleteLocationDialog extends StatelessWidget {
   const DeleteLocationDialog({
     super.key,
@@ -52,7 +52,7 @@ class DeleteLocationDialog extends StatelessWidget {
                   await _deleteLocationWithImage(id, imageUrl);
                 } on Exception catch (e) {
                   debugPrint(
-                    "🚨 ロケーション削除に失敗 $e",
+                    "🚨 撮影スポット削除に失敗 $e",
                   );
                 }
                 navigator.popUntil((route) => route.isFirst);
@@ -75,7 +75,7 @@ class DeleteLocationDialog extends StatelessWidget {
     }
 
     debugPrint(
-      "🌍 ロケーションを削除 id: $id",
+      "🌍 撮影スポットを削除 id: $id",
     );
   }
 }

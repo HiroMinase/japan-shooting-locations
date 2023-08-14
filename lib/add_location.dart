@@ -11,7 +11,7 @@ import "package:japan_shooting_locations/marker_data.dart";
 
 import "exif_table_container.dart";
 
-// ロケーション作成用のダイアログ
+// 撮影スポット作成用のダイアログ
 class AddLocationDialog extends StatefulWidget {
   const AddLocationDialog({super.key, this.latLng});
 
@@ -65,7 +65,7 @@ class AddLocationDialogState extends State<AddLocationDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       title: const Center(
-        child: Text("ロケーションを登録"),
+        child: Text("撮影スポットを登録"),
       ),
       content: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -111,7 +111,7 @@ class AddLocationDialogState extends State<AddLocationDialog> {
                 await _addLocation(name, latitude, longitude, imageFile!, markerdata);
               } on Exception catch (e) {
                 debugPrint(
-                  "🚨 ロケーション作成に失敗 $e",
+                  "🚨 撮影スポット作成に失敗 $e",
                 );
               }
               navigator.pop();
@@ -155,7 +155,7 @@ class AddLocationDialogState extends State<AddLocationDialog> {
       "createdAt": Timestamp.now(),
     });
     debugPrint(
-      "🌍 ロケーションを作成: "
+      "🌍 撮影スポットを作成: "
       "name: $name"
       "lat: $latitude, "
       "lng: $longitude, "

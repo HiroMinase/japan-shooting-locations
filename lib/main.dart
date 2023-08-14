@@ -379,7 +379,7 @@ class MapViewState extends State<MapView> {
               children: [
                 const SizedBox(height: 8),
                 Text(
-                  "範囲内のロケーション: ${_markers.length}個",
+                  "範囲内の撮影スポット: ${_markers.length}個",
                   style: const TextStyle(
                     color: Colors.white,
                     fontWeight: FontWeight.bold,

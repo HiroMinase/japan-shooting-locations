@@ -6,7 +6,7 @@ import "package:japan_shooting_locations/marker_data.dart";
 import "exif_table_container.dart";
 import "set_location.dart";
 
-// ロケーションの詳細ダイアログ
+// 撮影スポットの詳細ダイアログ
 class SetOrDeleteLocationDialog extends StatelessWidget {
   const SetOrDeleteLocationDialog({
     super.key,

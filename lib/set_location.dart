@@ -3,7 +3,7 @@ import "package:cloud_firestore/cloud_firestore.dart";
 import "package:flutter/material.dart";
 import "package:geoflutterfire_plus/geoflutterfire_plus.dart";
 
-// ロケーション更新用のダイアログ
+// 撮影スポット更新用のダイアログ
 class SetLocationDialog extends StatefulWidget {
   const SetLocationDialog({
     super.key,
@@ -85,7 +85,7 @@ class _SetLocationDialogState extends State<SetLocationDialog> {
                 );
               } on Exception catch (e) {
                 debugPrint(
-                  "🚨 ロケーション更新に失敗 $e",
+                  "🚨 撮影スポット更新に失敗 $e",
                 );
               }
               navigator.popUntil((route) => route.isFirst);
@@ -111,7 +111,7 @@ class _SetLocationDialogState extends State<SetLocationDialog> {
       },
       options: SetOptions(merge: true),
     );
-    debugPrint("🌍 ロケーションを更新: "
+    debugPrint("🌍 撮影スポットを更新: "
         "id: $id");
   }
 }
