@@ -1,143 +1,108 @@
-import 'package:flutter/material.dart';
-import 'package:webview_flutter/webview_flutter.dart';
-// #docregion platform_imports
-// Import for Android features.
-import 'package:webview_flutter_android/webview_flutter_android.dart';
-// Import for iOS features.
-import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
+import "package:cloud_firestore/cloud_firestore.dart";
+import "package:flutter/material.dart";
 
-import 'main.dart';
-// #enddocregion platform_imports
-
-class WebView extends StatefulWidget {
-  const WebView({super.key});
+// 機能の要望やバグ報告フォーム
+class RequestFormDialog extends StatefulWidget {
+  const RequestFormDialog({super.key});
 
   @override
-  State<WebView> createState() => WebViewState();
+  RequestFormDialogState createState() => RequestFormDialogState();
 }
 
-class WebViewState extends State<WebView> {
-  late final WebViewController _controller;
+class RequestFormDialogState extends State<RequestFormDialog> {
+  final _textEditingController = TextEditingController();
+  final _nameEditingController = TextEditingController();
 
   @override
   void initState() {
     super.initState();
+  }
 
-    // #docregion platform_features
-    late final PlatformWebViewControllerCreationParams params;
-    if (WebViewPlatform.instance is WebKitWebViewPlatform) {
-      params = WebKitWebViewControllerCreationParams(
-        allowsInlineMediaPlayback: true,
-        mediaTypesRequiringUserAction: const <PlaybackMediaTypes>{},
-      );
-    } else {
-      params = const PlatformWebViewControllerCreationParams();
-    }
-
-    final WebViewController controller = WebViewController.fromPlatformCreationParams(params);
-    // #enddocregion platform_features
-
-    controller
-      ..setJavaScriptMode(JavaScriptMode.unrestricted)
-      ..setBackgroundColor(const Color(0x00000000))
-      ..setNavigationDelegate(
-        NavigationDelegate(
-          onProgress: (int progress) {
-            debugPrint('WebView is loading (progress : $progress%)');
-          },
-          onPageStarted: (String url) {
-            debugPrint('Page started loading: $url');
-          },
-          onPageFinished: (String url) {
-            debugPrint('Page finished loading: $url');
-          },
-          onWebResourceError: (WebResourceError error) {
-            debugPrint('''
-Page resource error:
-  code: ${error.errorCode}
-  description: ${error.description}
-  errorType: ${error.errorType}
-  isForMainFrame: ${error.isForMainFrame}
-          ''');
-          },
-          onNavigationRequest: (NavigationRequest request) {
-            if (request.url.startsWith('https://www.youtube.com/')) {
-              debugPrint('blocking navigation to ${request.url}');
-              return NavigationDecision.prevent;
-            }
-            debugPrint('allowing navigation to ${request.url}');
-            return NavigationDecision.navigate;
-          },
-          onUrlChange: (UrlChange change) {
-            debugPrint('url change to ${change.url}');
-          },
-        ),
-      )
-      ..addJavaScriptChannel(
-        'Toaster',
-        onMessageReceived: (JavaScriptMessage message) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(message.message)),
-          );
-        },
-      )
-      ..loadRequest(Uri.parse("https://docs.google.com/forms/d/e/1FAIpQLSe5M_i_RMqSUuk7OWb-KBXSU6E0Wseyy87LJMkAJKW3HWQLmw/viewform"));
-
-    // #docregion platform_features
-    if (controller.platform is AndroidWebViewController) {
-      AndroidWebViewController.enableDebugging(true);
-      (controller.platform as AndroidWebViewController).setMediaPlaybackRequiresUserGesture(false);
-    }
-    // #enddocregion platform_features
-
-    _controller = controller;
+  @override
+  void dispose() {
+    _nameEditingController.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        title: const Text(
-          "ご利用ありがとうございます！",
-          style: TextStyle(color: Colors.black, fontSize: 16),
+    return AlertDialog(
+      title: const Center(
+        child: Text(
+          "機能の要望やバグ報告",
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
-      body: Stack(
+      content: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          WebViewWidget(controller: _controller),
-          Container(
-            margin: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.05),
-            child: Align(
-              alignment: Alignment.bottomCenter,
-              child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const App()),
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.yellow,
-                  fixedSize: const Size(200, 50),
-                ),
-                icon: const Icon(
-                  Icons.arrow_back,
-                  color: Colors.black87,
-                ),
-                label: const Text(
-                  "マップページへ戻る",
-                  style: TextStyle(
-                    color: Colors.black87,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.2,
-                  ),
-                ),
+          TextField(
+            controller: _textEditingController,
+            minLines: 6,
+            maxLines: null,
+            keyboardType: TextInputType.multiline,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
               ),
+              label: const Text("内容"),
+            ),
+          ),
+          const SizedBox(height: 16),
+          TextField(
+            controller: _nameEditingController,
+            keyboardType: TextInputType.name,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              label: const Text("名前(任意入力)"),
+            ),
+          ),
+          const SizedBox(height: 16),
+          ElevatedButton(
+            onPressed: () async {
+              final navigator = Navigator.of(context);
+              final text = _textEditingController.value.text;
+              final name = _nameEditingController.value.text;
+              if (text.isEmpty) {
+                throw Exception("内容を入力してください");
+              }
+              try {
+                await _addRequest(text, name);
+              } on Exception catch (e) {
+                debugPrint(
+                  "🚨 送信に失敗 $e",
+                );
+              }
+              navigator.pop();
+            },
+            child: const Text(
+              "送信",
+              style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
         ],
       ),
     );
+  }
+
+  //　Firestore に登録
+  Future<void> _addRequest(
+    String text,
+    String name,
+  ) async {
+    await FirebaseFirestore.instance.collection("requests").add({
+      "text": text,
+      "name": name,
+      "createdAt": Timestamp.now(),
+    });
+    debugPrint("🌍 リクエストを作成: "
+        "text: $text, "
+        "name: $name");
   }
 }

@@ -417,9 +417,9 @@ class MapViewState extends State<MapView> {
                     ),
                   ),
                   onPressed: () {
-                    Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(builder: (context) => const WebView()),
+                    showDialog<void>(
+                      context: context,
+                      builder: (context) => const RequestFormDialog(),
                     );
                   },
                   icon: const Icon(
