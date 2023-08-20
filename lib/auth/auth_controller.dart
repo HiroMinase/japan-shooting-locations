@@ -39,4 +39,7 @@ class AuthController {
     }
     return;
   }
+
+  /// [FirebaseAuth] からサインアウトする。
+  Future<void> signOut() => _authService.signOut();
 }

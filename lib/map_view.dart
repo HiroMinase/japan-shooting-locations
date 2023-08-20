@@ -12,9 +12,9 @@ import "package:rxdart/rxdart.dart";
 
 import "add_location.dart";
 import "color_table.dart";
+import "infomation_panel.dart";
 import "marker_data.dart";
 import "set_or_delete_location.dart";
-import 'request_form_dialog.dart';
 
 // 検索半径やカメラ位置などを管理
 class _GeoQueryCondition {
@@ -338,82 +338,7 @@ class MapViewState extends State<MapView> {
               builder: (context) => AddLocationDialog(latLng: latLng),
             ),
           ),
-          Container(
-            width: double.infinity,
-            margin: const EdgeInsets.only(top: 64, left: 16, right: 16),
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: ColorTable.primaryBlackColor.withOpacity(0.8),
-              borderRadius: const BorderRadius.all(Radius.circular(15)),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(height: 8),
-                const Text(""),
-                const SizedBox(height: 8),
-                Text(
-                  "範囲内の撮影スポット: ${_markers.length}個",
-                  style: const TextStyle(
-                    color: ColorTable.primaryWhiteColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  "検索半径: ${_radiusInKm.toStringAsFixed(1)}km",
-                  style: const TextStyle(
-                    color: ColorTable.primaryWhiteColor,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Slider(
-                  value: _radiusInKm,
-                  min: 1,
-                  max: 10,
-                  divisions: 9,
-                  label: _radiusInKm.toStringAsFixed(1),
-                  // 検索半径の変化によって _geoQueryCondition を追加
-                  onChanged: (value) => _geoQueryCondition.add(
-                    _GeoQueryCondition(
-                      radiusInKm: value,
-                      cameraPosition: _cameraPosition,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: ColorTable.primaryWhiteColor,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(15),
-                    ),
-                  ),
-                  onPressed: () {
-                    showDialog<void>(
-                      context: context,
-                      builder: (context) => const RequestFormDialog(),
-                    );
-                  },
-                  icon: const Icon(
-                    Icons.emoji_objects,
-                    color: Colors.amber,
-                  ),
-                  label: const Text(
-                    "機能の要望やバグ報告",
-                    style: TextStyle(
-                      color: ColorTable.primaryBlackColor,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 1.2,
-                    ),
-                  ),
-                )
-              ],
-            ),
-          ),
+          InfomationPanel(markersCount: _markers.length),
           Container(
             margin: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.15 * 1.1),
             child: Align(

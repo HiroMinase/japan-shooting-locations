@@ -5,6 +5,30 @@ import 'user_repositories.dart';
 
 final userRepositoryProvider = Provider.autoDispose<UserRepository>((_) => UserRepository());
 
+/// 指定した [User] ドキュメントを購読する [StreamProvider].
+final userStreamProvider = StreamProvider.family.autoDispose<ReadUser?, String>(
+  (ref, userId) => ref.watch(userRepositoryProvider).subscribeUser(userId: userId),
+);
+
+/// 指定した [User] の画像 URL を返す [Provider].
+/// 画像が存在しない場合や読み込み中・エラーの場合でもから文字を返す。
+final userImageUrlProvider = Provider.family.autoDispose<String, String>((ref, userId) {
+  final user = ref.watch(userStreamProvider(userId)).valueOrNull;
+  return user?.imageUrl ?? '';
+});
+
+/// 指定した [User] の名前を返す [Provider].
+/// 読み込み中・エラーの場合は空文字を返す。
+final userDisplayNameProvider = Provider.family.autoDispose<String, String>((ref, userId) {
+  final user = ref.watch(userStreamProvider(userId)).valueOrNull;
+  return user?.displayName ?? '';
+});
+
+/// 指定した [User] を返す [FutureProvider].
+final userFutureProvider = FutureProvider.family.autoDispose<ReadUser?, String>(
+  (ref, userId) => ref.watch(userServiceProvider).fetchUser(userId: userId),
+);
+
 final userServiceProvider = Provider.autoDispose<UserService>(
   (ref) => UserService(
     userRepository: ref.watch(userRepositoryProvider),

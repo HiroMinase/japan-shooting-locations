@@ -1,18 +1,21 @@
 import 'dart:async';
 import 'dart:core';
 import 'package:flutter/material.dart';
+import 'package:hooks_riverpod/hooks_riverpod.dart';
 
+import 'auth/auth_service.dart';
 import 'auth/google_apple_signin_page.dart';
+import 'map_view.dart';
 import 'color_table.dart';
 
-class SplashScreen extends StatefulWidget {
+class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
 
   @override
-  State<StatefulWidget> createState() => _SplashScreenState();
+  SplashScreenState createState() => SplashScreenState();
 }
 
-class _SplashScreenState extends State<SplashScreen> {
+class SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   void initState() {
     super.initState();
@@ -21,7 +24,11 @@ class _SplashScreenState extends State<SplashScreen> {
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
           pageBuilder: (context, animation, secondaryAnimation) {
-            return const GoogleAppleSigninPage();
+            if (ref.watch(isSignedInProvider)) {
+              return const MapView();
+            } else {
+              return const GoogleAppleSigninPage();
+            }
           },
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             const double begin = 0.0;
