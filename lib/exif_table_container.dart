@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import 'color_table.dart';
 import 'marker_data.dart';
 
 class ExifTableContainer extends StatelessWidget {
@@ -15,17 +16,17 @@ class ExifTableContainer extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 30.0, vertical: 10.0),
       child: Table(
-        border: const TableBorder(
+        border: TableBorder(
           top: BorderSide(
-            color: Colors.black12,
+            color: ColorTable.primaryBlackColor[100] as Color,
             width: 1.0,
           ),
           horizontalInside: BorderSide(
-            color: Colors.black12,
+            color: ColorTable.primaryBlackColor[100] as Color,
             width: 1.0,
           ),
           bottom: BorderSide(
-            color: Colors.black12,
+            color: ColorTable.primaryBlackColor[100] as Color,
             width: 1.0,
           ),
         ),

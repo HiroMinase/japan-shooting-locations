@@ -9,6 +9,7 @@ import "package:geoflutterfire_plus/geoflutterfire_plus.dart";
 import "package:google_maps_flutter/google_maps_flutter.dart";
 import "package:japan_shooting_locations/marker_data.dart";
 
+import "color_table.dart";
 import "exif_table_container.dart";
 
 // 撮影スポット作成用のダイアログ
@@ -89,9 +90,9 @@ class AddLocationDialogState extends State<AddLocationDialog> {
               _importImage();
             },
             style: ElevatedButton.styleFrom(backgroundColor: Colors.yellow),
-            child: const Text(
+            child: Text(
               "写真を選ぶ",
-              style: TextStyle(color: Colors.black87),
+              style: TextStyle(color: ColorTable.primaryBlackColor[400]),
             ),
           ),
           const SizedBox(height: 16),
