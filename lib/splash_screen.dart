@@ -2,8 +2,8 @@ import 'dart:async';
 import 'dart:core';
 import 'package:flutter/material.dart';
 
+import 'auth/google_apple_signin_page.dart';
 import 'color_table.dart';
-import 'map_view.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -21,7 +21,7 @@ class _SplashScreenState extends State<SplashScreen> {
       Navigator.of(context).pushReplacement(
         PageRouteBuilder(
           pageBuilder: (context, animation, secondaryAnimation) {
-            return const MapView();
+            return const GoogleAppleSigninPage();
           },
           transitionsBuilder: (context, animation, secondaryAnimation, child) {
             const double begin = 0.0;
@@ -33,7 +33,7 @@ class _SplashScreenState extends State<SplashScreen> {
               child: child,
             );
           },
-          transitionDuration: const Duration(seconds: 2),
+          transitionDuration: const Duration(seconds: 1),
         ),
       );
     });

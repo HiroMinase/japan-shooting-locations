@@ -216,7 +216,7 @@ class MapViewState extends State<MapView> {
   CameraPosition get _cameraPosition => _geoQueryCondition.value.cameraPosition;
 
   // デフォルトの検索半径
-  static const double _initialRadiusInKm = 2;
+  static const double _initialRadiusInKm = 1.5;
 
   // Google Map の初期ズームレベル
   static const double _initialZoom = 14;
@@ -351,6 +351,8 @@ class MapViewState extends State<MapView> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
+                const SizedBox(height: 8),
+                const Text(""),
                 const SizedBox(height: 8),
                 Text(
                   "範囲内の撮影スポット: ${_markers.length}個",

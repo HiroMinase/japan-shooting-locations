@@ -33,7 +33,7 @@ target 'Runner' do
 
   # プリコンパイルされたフレームワークを組み込むことで、iOS と macOS のビルド時間を短縮
   # 現在 iOS 向け Firestore SDK は、Xcode でビルドするのに最大5分かかるコードに依存しているため
-  pod 'FirebaseFirestore', :git => 'https://github.com/invertase/firestore-ios-sdk-frameworks.git', :tag => '10.10.0'
+  pod 'FirebaseFirestore', :git => 'https://github.com/invertase/firestore-ios-sdk-frameworks.git', :tag => '10.12.0'
 
   flutter_install_all_ios_pods File.dirname(File.realpath(__FILE__))
   target 'RunnerTests' do
