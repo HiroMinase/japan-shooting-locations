@@ -4,6 +4,7 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'auth/auth_controller.dart';
 import 'auth/sign_in.dart';
 import 'color_table.dart';
+import 'map/search_place.dart';
 import 'scaffold_messenger_controller.dart';
 
 class SearchBarNav extends ConsumerWidget {
@@ -40,12 +41,14 @@ class SearchBarNav extends ConsumerWidget {
                   child: GestureDetector(
                     onTap: () async {
                       // 住所検索
-                      await ref.watch(scaffoldMessengerControllerProvider).showDialogByBuilder<void>(
-                            builder: (_) => const AlertDialog(
-                              title: Text('住所検索について'),
-                              content: Text('住所検索機能は現在開発中です。もうしばらくお待ちください。'),
-                            ),
-                          );
+                      // await ref.watch(scaffoldMessengerControllerProvider).showDialogByBuilder<void>(
+                      //       builder: (_) => const AlertDialog(
+                      //         title: Text('住所検索について'),
+                      //         content: Text('住所検索機能は現在開発中です。もうしばらくお待ちください。'),
+                      //       ),
+                      //     );
+
+                      context.router.pushNamed(SearchPlace.location);
                     },
                     child: Row(
                       children: [

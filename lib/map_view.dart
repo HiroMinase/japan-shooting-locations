@@ -30,13 +30,15 @@ class _GeoQueryCondition {
 
 @RoutePage()
 class MapView extends StatefulWidget {
-  const MapView({super.key});
+  const MapView({super.key, this.placeLatLng});
 
   /// [AutoRoute] で指定するパス文字列。
   static const path = '/mapView';
 
   /// [MapView] に遷移する際に `context.router.pushNamed` で指定する文字列。
   static const location = path;
+
+  final LatLng? placeLatLng;
 
   @override
   MapViewState createState() => MapViewState();
@@ -311,7 +313,10 @@ class MapViewState extends State<MapView> {
           GoogleMap(
             zoomControlsEnabled: false,
             myLocationButtonEnabled: false,
-            initialCameraPosition: _initialCameraPosition,
+            initialCameraPosition: CameraPosition(
+              target: widget.placeLatLng ?? _initialTarget,
+              zoom: _initialZoom,
+            ),
             onMapCreated: (GoogleMapController googleMap) {
               _googleMapController.complete(googleMap);
 

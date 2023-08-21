@@ -16,9 +16,19 @@ abstract class _$AppRouter extends RootStackRouter {
   @override
   final Map<String, PageFactory> pagesMap = {
     MapViewRoute.name: (routeData) {
+      final args = routeData.argsAs<MapViewArgs>(orElse: () => const MapViewArgs());
       return AutoRoutePage<dynamic>(
         routeData: routeData,
-        child: const MapView(),
+        child: MapView(
+          key: args.key,
+          placeLatLng: args.placeLatLng,
+        ),
+      );
+    },
+    SearchPlaceRoute.name: (routeData) {
+      return AutoRoutePage<dynamic>(
+        routeData: routeData,
+        child: const SearchPlace(),
       );
     },
     SignInRoute.name: (routeData) {
@@ -38,14 +48,51 @@ abstract class _$AppRouter extends RootStackRouter {
 
 /// generated route for
 /// [MapView]
-class MapViewRoute extends PageRouteInfo<void> {
-  const MapViewRoute({List<PageRouteInfo>? children})
-      : super(
+class MapViewRoute extends PageRouteInfo<MapViewArgs> {
+  MapViewRoute({
+    Key? key,
+    LatLng? placeLatLng,
+    List<PageRouteInfo>? children,
+  }) : super(
           MapViewRoute.name,
+          args: MapViewArgs(
+            key: key,
+            placeLatLng: placeLatLng,
+          ),
           initialChildren: children,
         );
 
-  static const String name = 'MapViewRoute';
+  static const String name = 'mapView';
+
+  static const PageInfo<MapViewArgs> page = PageInfo<MapViewArgs>(name);
+}
+
+class MapViewArgs {
+  const MapViewArgs({
+    this.key,
+    this.placeLatLng,
+  });
+
+  final Key? key;
+
+  final LatLng? placeLatLng;
+
+  @override
+  String toString() {
+    return 'MapViewArgs{key: $key, placeLatLng: $placeLatLng}';
+  }
+}
+
+/// generated route for
+/// [SearchPlace]
+class SearchPlaceRoute extends PageRouteInfo<void> {
+  const SearchPlaceRoute({List<PageRouteInfo>? children})
+      : super(
+          SearchPlaceRoute.name,
+          initialChildren: children,
+        );
+
+  static const String name = 'searchPlace';
 
   static const PageInfo<void> page = PageInfo<void>(name);
 }
@@ -59,7 +106,7 @@ class SignInRoute extends PageRouteInfo<void> {
           initialChildren: children,
         );
 
-  static const String name = 'SignInRoute';
+  static const String name = 'signIn';
 
   static const PageInfo<void> page = PageInfo<void>(name);
 }
@@ -73,7 +120,7 @@ class SplashScreenRoute extends PageRouteInfo<void> {
           initialChildren: children,
         );
 
-  static const String name = 'SplashScreenRoute';
+  static const String name = 'splashRoute';
 
   static const PageInfo<void> page = PageInfo<void>(name);
 }
