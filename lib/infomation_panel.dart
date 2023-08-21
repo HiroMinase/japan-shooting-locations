@@ -1,6 +1,7 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
-import 'package:japan_shooting_locations/auth/google_apple_signin_page.dart';
+import 'package:japan_shooting_locations/auth/sign_in.dart';
 import 'package:japan_shooting_locations/user/user_service.dart';
 
 import 'auth/auth_controller.dart';
@@ -54,13 +55,7 @@ class InfomationPanel extends ConsumerWidget {
               await ref.read(authControllerProvider).signOut();
 
               if (context.mounted) {
-                Navigator.of(context).pushReplacement(
-                  PageRouteBuilder(
-                    pageBuilder: (context, animation, secondaryAnimation) {
-                      return const GoogleAppleSigninPage();
-                    },
-                  ),
-                );
+                context.router.pushNamed(SignIn.location);
               }
             },
             icon: const Icon(

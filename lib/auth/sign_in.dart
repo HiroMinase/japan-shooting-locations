@@ -1,3 +1,4 @@
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:sign_in_button/sign_in_button.dart';
@@ -6,8 +7,15 @@ import '../map_view.dart';
 import 'auth_service.dart';
 import 'auth_controller.dart';
 
-class GoogleAppleSigninPage extends ConsumerWidget {
-  const GoogleAppleSigninPage({super.key});
+@RoutePage()
+class SignIn extends ConsumerWidget {
+  const SignIn({super.key});
+
+  /// [AutoRoute] で指定するパス文字列。
+  static const path = '/signIn';
+
+  /// [SignIn] に遷移する際に `context.router.pushNamed` で指定する文字列。
+  static const location = path;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -39,13 +47,7 @@ class GoogleAppleSigninPage extends ConsumerWidget {
 
                   final isSignIn = ref.watch(isSignedInProvider);
                   if (isSignIn && context.mounted) {
-                    Navigator.of(context).pushReplacement(
-                      PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) {
-                          return const MapView();
-                        },
-                      ),
-                    );
+                    context.router.pushNamed(MapView.location);
                   }
                 },
               ),
@@ -62,13 +64,7 @@ class GoogleAppleSigninPage extends ConsumerWidget {
 
                   final isSignIn = ref.watch(isSignedInProvider);
                   if (isSignIn && context.mounted) {
-                    Navigator.of(context).pushReplacement(
-                      PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) {
-                          return const MapView();
-                        },
-                      ),
-                    );
+                    context.router.pushNamed(MapView.location);
                   }
                 },
               ),

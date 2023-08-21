@@ -1,15 +1,23 @@
 import 'dart:async';
 import 'dart:core';
+import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
 import 'auth/auth_service.dart';
-import 'auth/google_apple_signin_page.dart';
+import 'auth/sign_in.dart';
 import 'map_view.dart';
 import 'color_table.dart';
 
+@RoutePage()
 class SplashScreen extends ConsumerStatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
+
+  /// [AutoRoute] で指定するパス文字列。
+  static const path = '/splashScreen';
+
+  /// [DevelopmentItemsPage] に遷移する際に `context.router.pushNamed` で指定する文字列。
+  static const location = path;
 
   @override
   SplashScreenState createState() => SplashScreenState();
@@ -21,28 +29,11 @@ class SplashScreenState extends ConsumerState<SplashScreen> {
     super.initState();
 
     Timer(const Duration(seconds: 1), () {
-      Navigator.of(context).pushReplacement(
-        PageRouteBuilder(
-          pageBuilder: (context, animation, secondaryAnimation) {
-            if (ref.watch(isSignedInProvider)) {
-              return const MapView();
-            } else {
-              return const GoogleAppleSigninPage();
-            }
-          },
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            const double begin = 0.0;
-            const double end = 1.0;
-            final Animatable<double> tween = Tween(begin: begin, end: end).chain(CurveTween(curve: Curves.easeInOut));
-            final Animation<double> doubleAnimation = animation.drive(tween);
-            return FadeTransition(
-              opacity: doubleAnimation,
-              child: child,
-            );
-          },
-          transitionDuration: const Duration(seconds: 1),
-        ),
-      );
+      if (ref.watch(isSignedInProvider)) {
+        context.router.pushNamed(MapView.location);
+      } else {
+        context.router.pushNamed(SignIn.location);
+      }
     });
   }
 
