@@ -22,7 +22,7 @@ class SearchBarNav extends ConsumerWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+            padding: const EdgeInsets.symmetric(vertical: 5, horizontal: 10),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(25),
               color: ColorTable.primaryWhiteColor,
@@ -61,7 +61,7 @@ class SearchBarNav extends ConsumerWidget {
                           ),
                         ),
                         Text(
-                          "ここで検索",
+                          "場所を検索",
                           style: TextStyle(
                             fontSize: 20,
                             color: ColorTable.primaryBlackColor[300],
@@ -118,11 +118,11 @@ class SearchBarNav extends ConsumerWidget {
                         );
                   },
                   child: const Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 8.0),
+                    padding: EdgeInsets.symmetric(horizontal: 5),
                     child: Icon(
                       Icons.account_circle,
                       color: ColorTable.primaryBlackColor,
-                      size: 28,
+                      size: 36,
                     ),
                   ),
                 )
