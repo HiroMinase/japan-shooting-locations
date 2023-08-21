@@ -85,6 +85,11 @@ class SearchBarNav extends ConsumerWidget {
                                   ),
                                 ),
                                 onPressed: () async {
+                                  // TODO: ダイアログが自動で閉じられないのでどうにかしたい...
+                                  Navigator.pop(context);
+                                  await context.router.pop(true);
+                                  //
+
                                   await ref.read(authControllerProvider).signOut();
 
                                   if (context.mounted) {
