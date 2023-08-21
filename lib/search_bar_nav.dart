@@ -40,14 +40,6 @@ class SearchBarNav extends ConsumerWidget {
                 Expanded(
                   child: GestureDetector(
                     onTap: () async {
-                      // 住所検索
-                      // await ref.watch(scaffoldMessengerControllerProvider).showDialogByBuilder<void>(
-                      //       builder: (_) => const AlertDialog(
-                      //         title: Text('住所検索について'),
-                      //         content: Text('住所検索機能は現在開発中です。もうしばらくお待ちください。'),
-                      //       ),
-                      //     );
-
                       context.router.pushNamed(SearchPlace.location);
                     },
                     child: Row(
@@ -73,8 +65,6 @@ class SearchBarNav extends ConsumerWidget {
                 ),
                 GestureDetector(
                   onTap: () async {
-                    // ログアウト
-                    // 問い合わせ
                     await ref.watch(scaffoldMessengerControllerProvider).showDialogByBuilder<void>(
                           builder: (_) => AlertDialog(
                             title: const Text('マイページについて'),

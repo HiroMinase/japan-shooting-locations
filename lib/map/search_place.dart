@@ -47,6 +47,7 @@ class SearchPlaceState extends State<SearchPlace> {
     super.dispose();
   }
 
+  // 入力された文字列からなるサジェストを PlaceAPI を使って取得
   void getAutocompletePlace(String input) async {
     setState(() {
       predictions = [];
@@ -83,6 +84,7 @@ class SearchPlaceState extends State<SearchPlace> {
     });
   }
 
+  // 選択された AutocompletePlace の緯度経度を PlaceDetailAPI を使って取得
   Future<LatLng> getPlaceDetail(String placeId) async {
     const baseurl = "https://maps.googleapis.com/maps/api/place/details/json?";
     const fields = "geometry";
