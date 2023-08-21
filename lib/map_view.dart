@@ -9,6 +9,7 @@ import "package:cloud_firestore/cloud_firestore.dart";
 import "package:geoflutterfire_plus/geoflutterfire_plus.dart";
 import "package:geolocator/geolocator.dart";
 import "package:google_maps_flutter/google_maps_flutter.dart";
+import "package:japan_shooting_locations/infomation_panel_v2.dart";
 import "package:rxdart/rxdart.dart";
 
 import "add_location.dart";
@@ -346,7 +347,7 @@ class MapViewState extends State<MapView> {
               builder: (context) => AddLocationDialog(latLng: latLng),
             ),
           ),
-          InfomationPanel(markersCount: _markers.length),
+          const InfomationPanelV2(),
           Container(
             margin: EdgeInsets.only(bottom: MediaQuery.of(context).size.height * 0.15 * 1.1),
             child: Align(
