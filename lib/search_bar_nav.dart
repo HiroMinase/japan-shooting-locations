@@ -6,8 +6,8 @@ import 'auth/sign_in.dart';
 import 'color_table.dart';
 import 'scaffold_messenger_controller.dart';
 
-class InfomationPanelV2 extends ConsumerWidget {
-  const InfomationPanelV2({super.key});
+class SearchBarNav extends ConsumerWidget {
+  const SearchBarNav({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
