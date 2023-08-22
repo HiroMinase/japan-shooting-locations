@@ -134,6 +134,7 @@ class SearchPlaceState extends State<SearchPlace> {
                         width: MediaQuery.of(context).size.width * 0.9,
                         alignment: Alignment.centerLeft,
                         child: TextFormField(
+                          autofocus: true,
                           controller: _nameEditingController,
                           onChanged: (String value) {
                             getAutocompletePlace(value);
