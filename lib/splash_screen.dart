@@ -18,7 +18,7 @@ class SplashScreen extends ConsumerStatefulWidget {
   /// [AutoRoute] で指定するパス文字列。
   static const path = '/splashScreen';
 
-  /// [DevelopmentItemsPage] に遷移する際に `context.router.pushNamed` で指定する文字列。
+  /// [SplashScreen] に遷移する際に `context.router.pushNamed` で指定する文字列。
   static const location = path;
 
   @override
