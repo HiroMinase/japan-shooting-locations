@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:core';
+import 'dart:math';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
@@ -39,67 +41,77 @@ class SplashScreenState extends ConsumerState<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final Random random = Random();
+    final int backgroundImageNum = random.nextInt(28);
+
     return Scaffold(
       backgroundColor: Theme.of(context).colorScheme.background,
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment(-1.6, -0.1),
-            end: Alignment(2.5, 1.3),
-            stops: [0.2, 0.7],
-            colors: [
-              ColorTable.lightGradientBeginColor,
-              ColorTable.lightGradientEndColor,
-            ],
+      body: Stack(
+        children: [
+          Positioned.fill(
+            child: Image(
+              image: AssetImage("lib/assets/images/background/$backgroundImageNum.jpg"),
+              fit: BoxFit.cover,
+            ),
           ),
-        ),
-        child: Center(
-          child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
-            const Text(
-              "フォトピン",
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 1,
-                color: ColorTable.primaryBlackColor,
+          Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            color: Colors.black.withOpacity(0.4),
+          ),
+          Positioned(
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text(
+                    "フォトピン",
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1,
+                      color: ColorTable.primaryWhiteColor,
+                    ),
+                  ),
+                  Container(
+                    margin: const EdgeInsets.symmetric(vertical: 30),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Image.asset(
+                        "lib/assets/images/icon.png",
+                        width: MediaQuery.of(context).size.width / 4,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                    decoration: const BoxDecoration(
+                      border: Border(
+                        top: BorderSide(width: 1.0, color: ColorTable.primaryWhiteColor),
+                        bottom: BorderSide(width: 1.0, color: ColorTable.primaryWhiteColor),
+                      ),
+                    ),
+                    child: const Text(
+                      "撮影スポット共有アプリ",
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        height: 1.6,
+                        letterSpacing: 3,
+                        color: ColorTable.primaryWhiteColor,
+                      ),
+                      // line-heightに対して上下中央に配置するため
+                      textHeightBehavior: TextHeightBehavior(
+                        applyHeightToFirstAscent: false,
+                        applyHeightToLastDescent: false,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
-            Container(
-              margin: const EdgeInsets.symmetric(vertical: 30),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: Image.asset(
-                  "lib/assets/images/icon.png",
-                  width: MediaQuery.of(context).size.width / 4,
-                ),
-              ),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-              decoration: const BoxDecoration(
-                border: Border(
-                  top: BorderSide(width: 1.0, color: ColorTable.primaryBlackColor),
-                  bottom: BorderSide(width: 1.0, color: ColorTable.primaryBlackColor),
-                ),
-              ),
-              child: const Text(
-                "撮影スポット共有アプリ",
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
-                  height: 1.6,
-                  letterSpacing: 3,
-                  color: ColorTable.primaryBlackColor,
-                ),
-                // line-heightに対して上下中央に配置するため
-                textHeightBehavior: TextHeightBehavior(
-                  applyHeightToFirstAscent: false,
-                  applyHeightToLastDescent: false,
-                ),
-              ),
-            ),
-          ]),
-        ),
+          ),
+        ],
       ),
     );
   }
