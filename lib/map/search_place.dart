@@ -85,6 +85,7 @@ class SearchPlaceState extends State<SearchPlace> {
   }
 
   // 選択された AutocompletePlace の緯度経度を PlaceDetailAPI を使って取得
+  // 参考にスクランブルスクエアの place_id: ChIJ7WUBoDGLGGARaK3ikXtAfDg
   Future<LatLng> getPlaceDetail(String placeId) async {
     const baseurl = "https://maps.googleapis.com/maps/api/place/details/json?";
     const fields = "geometry";
@@ -119,11 +120,18 @@ class SearchPlaceState extends State<SearchPlace> {
                     Container(
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(30),
-                        boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 10.0, spreadRadius: 1.0, offset: Offset(10, 10))],
+                        borderRadius: BorderRadius.circular(25),
+                        boxShadow: const [
+                          BoxShadow(
+                            color: Colors.black26,
+                            spreadRadius: 0.5,
+                            blurRadius: 5.0,
+                            offset: Offset(5, 5),
+                          ),
+                        ],
                       ),
                       child: Container(
-                        width: MediaQuery.of(context).size.width * 0.8,
+                        width: MediaQuery.of(context).size.width * 0.9,
                         alignment: Alignment.centerLeft,
                         child: TextFormField(
                           controller: _nameEditingController,
@@ -139,7 +147,7 @@ class SearchPlaceState extends State<SearchPlace> {
                               },
                             ),
                             hintText: '場所を検索',
-                            hintStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                            hintStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                             border: InputBorder.none,
                           ),
                         ),
