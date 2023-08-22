@@ -27,17 +27,6 @@ class App extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return MaterialApp.router(
       title: 'フォトピン',
-      theme: ThemeData(
-        useMaterial3: true,
-        sliderTheme: SliderThemeData(
-          overlayShape: SliderComponentShape.noOverlay,
-        ),
-        appBarTheme: Theme.of(context).appBarTheme.copyWith(
-              centerTitle: true,
-              elevation: 4,
-              shadowColor: Theme.of(context).shadowColor,
-            ),
-      ),
       debugShowCheckedModeBanner: false,
       routerConfig: ref.watch(_appRouterProvider).config(),
       builder: (context, child) {

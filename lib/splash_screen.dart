@@ -28,7 +28,7 @@ class SplashScreenState extends ConsumerState<SplashScreen> {
   void initState() {
     super.initState();
 
-    Timer(const Duration(seconds: 1), () {
+    Timer(const Duration(seconds: 2), () {
       if (ref.watch(isSignedInProvider)) {
         context.router.pushNamed(MapView.location);
       } else {

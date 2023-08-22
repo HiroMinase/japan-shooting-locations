@@ -29,7 +29,7 @@ class ScaffoldMessengerController {
 
   static const _defaultSnackBarBehavior = SnackBarBehavior.floating;
 
-  static const _defaultSnackBarDuration = Duration(seconds: 3);
+  static const _defaultSnackBarDuration = Duration(seconds: 2);
 
   static const _generalExceptionMessage = 'エラーが発生しました。';
 

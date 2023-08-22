@@ -14,7 +14,7 @@ class SearchBarNav extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.only(top: 64, left: 10, right: 10),
+      margin: const EdgeInsets.only(top: 60, left: 10, right: 10),
       padding: const EdgeInsets.all(10),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -79,9 +79,10 @@ class SearchBarNav extends ConsumerWidget {
                                 ),
                                 onPressed: () async {
                                   // TODO: ダイアログが自動で閉じられないのでどうにかしたい...
-                                  Navigator.pop(context);
-                                  await context.router.pop(true);
-                                  //
+                                  // Navigator.pop(context); // 変化なし
+                                  // await context.router.pop(true); // 変化なし
+                                  // Navigator.of(context).pop(false); // 変化なし
+                                  // await context.router.pop(false); // 変化なし
 
                                   await ref.read(authControllerProvider).signOut();
 
@@ -112,7 +113,7 @@ class SearchBarNav extends ConsumerWidget {
                     child: Icon(
                       Icons.account_circle,
                       color: ColorTable.primaryBlackColor,
-                      size: 36,
+                      size: 40,
                     ),
                   ),
                 )

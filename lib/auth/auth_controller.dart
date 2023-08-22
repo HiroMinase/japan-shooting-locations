@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 
@@ -22,7 +21,7 @@ class AuthController {
   final AuthService _authService;
   final ScaffoldMessengerController _scaffoldMessengerController;
 
-  /// 選択した [SignInMethod] でサインインする。
+  /// 選択された [SignInMethod] でサインインする。
   Future<void> signIn(SignInMethod authenticator) async {
     switch (authenticator) {
       case SignInMethod.google:
@@ -32,14 +31,15 @@ class AuthController {
         // キャンセル時
         on PlatformException catch (e) {
           if (e.code == 'network_error') {
-            debugPrint("🚨 ネットワークに接続されていません $e");
+            _scaffoldMessengerController.showSnackBarByException(e);
           }
-          debugPrint("🚨 キャンセルされました $e");
+          _scaffoldMessengerController.showSnackBarByException(e);
         }
 
       case SignInMethod.apple:
         // Apple はキャンセルやネットワークエラーの判定ができないので、try-catchしない
         await _authService.signInWithApple();
+      default:
         throw UnimplementedError();
     }
 

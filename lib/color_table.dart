@@ -53,7 +53,23 @@ class ColorTable {
     },
   );
 
-  static const int _lightGradientBeginValue = 0xFFD7EDE1;
+  static const int _primaryGreenValue = 0xFF7ED477;
+  static const MaterialColor primaryGreenColor = MaterialColor(
+    _primaryGreenValue,
+    <int, Color>{
+      100: Color(0xFFeffaee),
+      200: Color(0xFFd3f0d0),
+      300: Color(0xFFb7e7b3),
+      400: Color(0xFF9add95),
+      500: Color(_primaryGreenValue),
+      600: Color(0xFF013c5f),
+      700: Color(0xFF012f4b),
+      800: Color(0xFF002338),
+      900: Color(0xFF001724),
+    },
+  );
+
+  static const int _lightGradientBeginValue = 0xFF7DC387;
   static const MaterialColor lightGradientBeginColor = MaterialColor(
     _lightGradientBeginValue,
     <int, Color>{
@@ -70,7 +86,7 @@ class ColorTable {
     },
   );
 
-  static const int _lightGradientEndValue = 0xFF014872;
+  static const int _lightGradientEndValue = 0xFFDBE9EA;
   static const MaterialColor lightGradientEndColor = MaterialColor(
     _lightGradientEndValue,
     <int, Color>{

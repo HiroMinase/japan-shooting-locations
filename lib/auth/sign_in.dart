@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:sign_in_button/sign_in_button.dart';
 
+import '../color_table.dart';
 import '../map_view.dart';
 import 'auth_service.dart';
 import 'auth_controller.dart';
@@ -20,8 +21,19 @@ class SignIn extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return Scaffold(
-      body: SizedBox(
+      body: Container(
         width: MediaQuery.of(context).size.width,
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment(-1.2, -0.5),
+            end: Alignment(2.0, 1.0),
+            stops: [0.2, 0.8],
+            colors: [
+              ColorTable.lightGradientBeginColor,
+              ColorTable.lightGradientEndColor,
+            ],
+          ),
+        ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -32,6 +44,7 @@ class SignIn extends ConsumerWidget {
                 "登録方法を選ぶ",
                 style: TextStyle(
                   fontSize: 20,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
             ),
@@ -60,7 +73,7 @@ class SignIn extends ConsumerWidget {
                 Buttons.apple,
                 text: 'Apple でサインイン',
                 onPressed: () async {
-                  ref.read(authControllerProvider).signIn(SignInMethod.apple);
+                  await ref.read(authControllerProvider).signIn(SignInMethod.apple);
 
                   final isSignIn = ref.watch(isSignedInProvider);
                   if (isSignIn && context.mounted) {
