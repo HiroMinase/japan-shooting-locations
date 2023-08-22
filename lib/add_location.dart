@@ -7,13 +7,15 @@ import "package:firebase_storage/firebase_storage.dart";
 import "package:flutter/material.dart";
 import "package:geoflutterfire_plus/geoflutterfire_plus.dart";
 import "package:google_maps_flutter/google_maps_flutter.dart";
+import "package:hooks_riverpod/hooks_riverpod.dart";
 import "package:japan_shooting_locations/marker_data.dart";
 
+import "auth/auth_service.dart";
 import "color_table.dart";
 import "exif_table_container.dart";
 
 // 撮影スポット作成用のダイアログ
-class AddLocationDialog extends StatefulWidget {
+class AddLocationDialog extends ConsumerStatefulWidget {
   const AddLocationDialog({super.key, this.latLng});
 
   final LatLng? latLng;
@@ -22,13 +24,14 @@ class AddLocationDialog extends StatefulWidget {
   AddLocationDialogState createState() => AddLocationDialogState();
 }
 
-class AddLocationDialogState extends State<AddLocationDialog> {
+class AddLocationDialogState extends ConsumerState<AddLocationDialog> {
   final _nameEditingController = TextEditingController();
   late double latitude;
   late double longitude;
   File? imageFile;
   MarkerData markerdata = MarkerData(
     firestoreDocumentId: "",
+    userId: "",
     name: "",
     imageUrl: "",
     camera: "",
@@ -142,6 +145,7 @@ class AddLocationDialogState extends State<AddLocationDialog> {
     await GeoCollectionReference<Map<String, dynamic>>(
       FirebaseFirestore.instance.collection("locations"),
     ).add(<String, dynamic>{
+      "userId": ref.read(userIdProvider),
       "geo": geoFirePoint.data,
       "name": name,
       "imageUrl": uploadedLink,
@@ -198,6 +202,7 @@ class AddLocationDialogState extends State<AddLocationDialog> {
       setState(() {
         markerdata = MarkerData(
           firestoreDocumentId: "",
+          userId: ref.read(userIdProvider)!,
           name: _nameEditingController.value.text,
           imageUrl: "",
           camera: cameraFromExif,

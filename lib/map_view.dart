@@ -92,6 +92,7 @@ class MapViewState extends State<MapView> {
       if (data == null) {
         continue;
       }
+      final userId = data["userId"] as String;
       final name = data["name"] as String;
       final geoPoint = (data["geo"] as Map<String, dynamic>)["geopoint"] as GeoPoint;
       final imageUrl = data["imageUrl"] as String;
@@ -118,6 +119,7 @@ class MapViewState extends State<MapView> {
       dataList.add(
         MarkerData(
           firestoreDocumentId: id,
+          userId: userId,
           name: name,
           imageUrl: imageUrl,
           camera: camera,

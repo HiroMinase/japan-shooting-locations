@@ -1,6 +1,7 @@
 class MarkerData {
   MarkerData({
     required this.firestoreDocumentId,
+    required this.userId,
     required this.name,
     required this.imageUrl,
     required this.camera,
@@ -13,6 +14,7 @@ class MarkerData {
   });
 
   final String firestoreDocumentId;
+  final String userId;
   final String name;
   final String imageUrl;
   final String camera;

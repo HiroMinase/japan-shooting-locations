@@ -1,13 +1,16 @@
 import "package:cached_network_image/cached_network_image.dart";
 import "package:flutter/material.dart";
 import "package:geoflutterfire_plus/geoflutterfire_plus.dart";
+import "package:hooks_riverpod/hooks_riverpod.dart";
+import "package:japan_shooting_locations/auth/auth_service.dart";
 import "package:japan_shooting_locations/marker_data.dart";
 
+import "delete_location.dart";
 import "exif_table_container.dart";
 import "set_location.dart";
 
 // 撮影スポットの詳細ダイアログ
-class SetOrDeleteLocationDialog extends StatelessWidget {
+class SetOrDeleteLocationDialog extends ConsumerWidget {
   const SetOrDeleteLocationDialog({
     super.key,
     required this.geoFirePoint,
@@ -18,7 +21,7 @@ class SetOrDeleteLocationDialog extends StatelessWidget {
   final MarkerData markerdata;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return AlertDialog(
       content: Column(
         mainAxisAlignment: MainAxisAlignment.start,
@@ -69,6 +72,19 @@ class SetOrDeleteLocationDialog extends StatelessWidget {
                     ),
                     child: const Text("編集する"),
                   ),
+                  if (ref.watch(userIdProvider) == markerdata.userId)
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+                      onPressed: () => showDialog<void>(
+                        context: context,
+                        builder: (_) => DeleteLocationDialog(
+                          id: markerdata.firestoreDocumentId,
+                          name: markerdata.name,
+                          imageUrl: markerdata.imageUrl,
+                        ),
+                      ),
+                      child: const Text("削除する"),
+                    ),
                 ],
               ),
             ],
