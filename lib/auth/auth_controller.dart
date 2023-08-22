@@ -21,7 +21,7 @@ class AuthController {
   final AuthService _authService;
   final ScaffoldMessengerController _scaffoldMessengerController;
 
-  /// 選択された [SignInMethod] でサインインする。
+  /// 選択された [SignInMethod] でログインする。
   Future<void> signIn(SignInMethod authenticator) async {
     switch (authenticator) {
       case SignInMethod.google:
@@ -47,7 +47,7 @@ class AuthController {
     return;
   }
 
-  /// [FirebaseAuth] からサインアウトする。
+  /// [FirebaseAuth] からログアウトする。
   Future<void> signOut() async {
     _authService.signOut();
 

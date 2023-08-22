@@ -95,7 +95,7 @@ class SearchBarNav extends ConsumerWidget {
                                   color: Colors.red,
                                 ),
                                 label: const Text(
-                                  "サインアウト",
+                                  "ログアウト",
                                   style: TextStyle(
                                     color: ColorTable.primaryBlackColor,
                                     fontWeight: FontWeight.bold,

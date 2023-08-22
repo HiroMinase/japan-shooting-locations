@@ -8,7 +8,7 @@ import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 
 import '../user/user_service.dart';
 
-/// Firebase Console の Authentication で設定できるサインイン方法の種別。
+/// Firebase Console の Authentication で設定できるログイン方法の種別。
 enum SignInMethod {
   google,
   apple,
@@ -53,10 +53,10 @@ class AuthService {
   static final _auth = FirebaseAuth.instance;
   final UserService _userService;
 
-  /// [FirebaseAuth] に Google でサインインする。
+  /// [FirebaseAuth] に Google でログインする。
   /// https://firebase.flutter.dev/docs/auth/social/#google に従っている。
   Future<UserCredential> signInWithGoogle() async {
-    final googleUser = await GoogleSignIn().signIn(); // サインインダイアログの表示
+    final googleUser = await GoogleSignIn().signIn(); // ログインダイアログの表示
     final googleAuth = await googleUser?.authentication; // アカウントからトークン生成
     final credential = GoogleAuthProvider.credential(
       accessToken: googleAuth?.accessToken,
@@ -68,7 +68,7 @@ class AuthService {
     return userCredential;
   }
 
-  /// [FirebaseAuth] に Apple でサインインする。
+  /// [FirebaseAuth] に Apple でログインする。
   /// https://firebase.flutter.dev/docs/auth/social/#apple に従っている。
   Future<UserCredential> signInWithApple() async {
     final rawNonce = generateNonce();
@@ -99,7 +99,7 @@ class AuthService {
     return digest.toString();
   }
 
-  /// サインイン時に、まだ User ドキュメントが存在していなければ、Firebase の [UserCredential] をもとに生成する。
+  /// ログイン時に、まだ User ドキュメントが存在していなければ、Firebase の [UserCredential] をもとに生成する。
   /// Google や Apple によるはじめてのログインのときに相当する。
   Future<void> _maybeCreateUserByUserCredential({
     required UserCredential userCredential,
@@ -119,7 +119,7 @@ class AuthService {
     );
   }
 
-  /// [FirebaseAuth] からサインアウトする。
+  /// [FirebaseAuth] からログアウトする。
   Future<void> signOut() async {
     await _auth.signOut();
     await GoogleSignIn().signOut();

@@ -53,7 +53,7 @@ class SignIn extends ConsumerWidget {
                         margin: const EdgeInsets.symmetric(vertical: 20.0),
                         child: SignInButton(
                           Buttons.google,
-                          text: 'Google でサインイン',
+                          text: 'Google でログイン',
                           onPressed: () async {
                             await ref.read(authControllerProvider).signIn(SignInMethod.google);
 
@@ -70,7 +70,7 @@ class SignIn extends ConsumerWidget {
                         margin: const EdgeInsets.symmetric(vertical: 20.0),
                         child: SignInButton(
                           Buttons.apple,
-                          text: 'Apple でサインイン',
+                          text: 'Apple でログイン',
                           onPressed: () async {
                             await ref.read(authControllerProvider).signIn(SignInMethod.apple);
 
