@@ -4,8 +4,7 @@ class MarkerData {
     required this.userId,
     required this.name,
     required this.imageUrl,
-    required this.camera,
-    required this.software,
+    required this.cameraModel,
     required this.dateTime,
     required this.shutterSpeed,
     required this.fNumber,
@@ -17,8 +16,7 @@ class MarkerData {
   final String userId;
   final String name;
   final String imageUrl;
-  final String camera;
-  final String software;
+  final String cameraModel;
   final String dateTime;
   final String shutterSpeed;
   final String fNumber;

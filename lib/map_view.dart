@@ -96,8 +96,7 @@ class MapViewState extends State<MapView> {
       final name = data["name"] as String;
       final geoPoint = (data["geo"] as Map<String, dynamic>)["geopoint"] as GeoPoint;
       final imageUrl = data["imageUrl"] as String;
-      final camera = data["camera"] as String;
-      final software = data["software"] as String;
+      final cameraModel = data["cameraModel"] as String;
       final dateTime = data["dateTime"] as String;
       final shutterSpeed = data["shutterSpeed"] as String;
       final fNumber = data["fNumber"] as String;
@@ -122,8 +121,7 @@ class MapViewState extends State<MapView> {
           userId: userId,
           name: name,
           imageUrl: imageUrl,
-          camera: camera,
-          software: software,
+          cameraModel: cameraModel,
           dateTime: dateTime,
           shutterSpeed: shutterSpeed,
           fNumber: fNumber,

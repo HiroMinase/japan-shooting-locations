@@ -8,10 +8,11 @@ import "package:flutter/material.dart";
 import "package:geoflutterfire_plus/geoflutterfire_plus.dart";
 import "package:google_maps_flutter/google_maps_flutter.dart";
 import "package:hooks_riverpod/hooks_riverpod.dart";
-import "package:japan_shooting_locations/marker_data.dart";
 
 import "auth/auth_service.dart";
 import "color_table.dart";
+import "marker_data.dart";
+import "exif_data.dart";
 import "exif_table_container.dart";
 
 // 撮影スポット作成用のダイアログ
@@ -34,13 +35,34 @@ class AddLocationDialogState extends ConsumerState<AddLocationDialog> {
     userId: "",
     name: "",
     imageUrl: "",
-    camera: "",
-    software: "",
+    cameraModel: "",
     dateTime: "",
     shutterSpeed: "",
     fNumber: "",
     iso: "",
     focalLength: "",
+  );
+  CollectingExifData collectingExifData = CollectingExifData(
+    cameraManufacturer: null,
+    cameraModel: null,
+    lensManufacturer: null,
+    lensModel: null,
+    lensSpecification: null,
+    fNumber: null,
+    cameraMode: null,
+    shutterSpeed: null,
+    iso: null,
+    dateTime: null,
+    timeZone: null,
+    focalLength: null,
+    whiteBalance: null,
+    focalLength35mm: null,
+    latitudeDirection: null,
+    longitudeDirection: null,
+    latitude: null,
+    longitude: null,
+    software: null,
+    imageType: null,
   );
   String imageUploadedUrl = "";
   String camera = "";
@@ -149,8 +171,7 @@ class AddLocationDialogState extends ConsumerState<AddLocationDialog> {
       "geo": geoFirePoint.data,
       "name": name,
       "imageUrl": uploadedLink,
-      "camera": markerdata.camera,
-      "software": markerdata.software,
+      "cameraModel": markerdata.cameraModel,
       "dateTime": markerdata.dateTime,
       "shutterSpeed": markerdata.shutterSpeed,
       "fNumber": markerdata.fNumber,
@@ -169,7 +190,7 @@ class AddLocationDialogState extends ConsumerState<AddLocationDialog> {
     );
   }
 
-  // 画像を選択させ、
+  // 画像を選択させ、 Exif を取得し、 MarkerData, CollectingExifData を生成
   Future<void> _importImage() async {
     // 画像ファイルを選択
     final FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -180,24 +201,92 @@ class AddLocationDialogState extends ConsumerState<AddLocationDialog> {
     if (result != null) {
       setState(() {
         imageFile = File(result.files.single.path!);
+
+        markerdata = MarkerData(
+          firestoreDocumentId: "",
+          userId: "",
+          name: "",
+          imageUrl: "",
+          cameraModel: "",
+          dateTime: "",
+          shutterSpeed: "",
+          fNumber: "",
+          iso: "",
+          focalLength: "",
+        );
+        collectingExifData = CollectingExifData(
+          cameraManufacturer: null,
+          cameraModel: null,
+          lensManufacturer: null,
+          lensModel: null,
+          lensSpecification: null,
+          fNumber: null,
+          cameraMode: null,
+          shutterSpeed: null,
+          iso: null,
+          dateTime: null,
+          timeZone: null,
+          focalLength: null,
+          whiteBalance: null,
+          focalLength35mm: null,
+          latitudeDirection: null,
+          longitudeDirection: null,
+          latitude: null,
+          longitude: null,
+          software: null,
+          imageType: null,
+        );
       });
 
       final File file = File(result.files.single.path!);
       final exifData = await readExifFromBytes(await file.readAsBytes());
 
       exifData.forEach((key, value) {
-        print("$key: $value");
+        debugPrint("$key: $value");
       });
 
-      final cameraFromExif = exifData["Image Model"].toString(); // カメラの種類
+      final String cameraManufacturerFromExif = exifData["Image Make"].toString(); // カメラメーカー
+      final String cameraModelFromExif = exifData["Image Model"].toString(); // カメラ機種
+      final String lensManufacturerFromExif = exifData["EXIF LensMake"].toString(); // レンズメーカー
+      final String lensModelFromExif = exifData["EXIF LensModel"].toString(); // レンズ名
+      final String lensSpecificationFromExif = exifData["EXIF LensSpecification"].toString(); // レンズの仕様 焦点距離・F値
+
+      // F値が分数または数値で登録されているので変換
+      final List<String> fNumberArray = exifData["EXIF FNumber"].toString().split("/"); // 保存されているF値
+      final dynamic calcFNumber = fNumberArray.length == 1 ? int.parse(fNumberArray[0]) : int.parse(fNumberArray[0]) / int.parse(fNumberArray[1]); // 小数か数値に変換
+      final String fNumberFromExif = calcFNumber is int ? calcFNumber.toString() : calcFNumber.toStringAsFixed(1); // 数値ならそのまま/少数なら第一位までの、文字列に変換
+
+      final String cameraModeFromExif = exifData["EXIF ExposureProgram"].toString(); // 撮影設定
+      final String shutterSpeedFromExif = exifData["EXIF ExposureTime"].toString(); // シャッタースピード
+      final String isoFromExif = exifData["EXIF ISOSpeedRatings"].toString(); // ISO
+      final String dateTimeFromExif = exifData["EXIF DateTimeOriginal"].toString().replaceFirst(':', '-').replaceFirst(':', '-'); // 撮影時刻
+      final String timeZoneFromExif = exifData["EXIF OffsetTime"].toString(); // タイムゾーン
+
+      // 焦点距離が分数または数値で登録されているので変換
+      final List<String> rawFocalLength = exifData["EXIF FocalLength"].toString().split("/"); // 保存されている焦点距離
+      final dynamic calcFocalLength = rawFocalLength.length == 1 ? rawFocalLength[0] : int.parse(rawFocalLength[0]) / int.parse(rawFocalLength[1]); // 小数か数値に変換
+      final String focalLengthFromExif = calcFocalLength is String ? calcFocalLength : calcFocalLength.floor().toString(); // 数値ならそのまま/少数なら切り捨てて、文字列に変換
+
+      final String focalLength35mmFromExif = exifData["EXIF FocalLengthIn35mmFilm"].toString(); // 焦点距離(35mm換算)
+      final String whiteBalanceFromExif = exifData["EXIF WhiteBalance"].toString(); // ホワイトバランス
+
+      final String latitudeDirectionFromExif = exifData["GPS GPSLatitudeRef"].toString(); // 南緯 or 北緯 S なら GPSLatitude がマイナス
+      final String longitudeDirectionFromExif = exifData["GPS GPSLongitudeRef"].toString(); // 東経 or 西経 W なら GPSLongitude がマイナス
+
+      // 緯度(60進数なので10進数に変換する必要あり)
+      // [24, 2403201/50000, 0] -> 24 + (2403201/50000 / 60) + (0/0 / 3600) -> 24.801067
+      final List<String> latitude60thDigit = exifData["GPS GPSLatitude"].toString().replaceAll("[", "").replaceAll("]", "").split(",");
+      final double latitudeFromExif =
+          latitude60thDigit[0] == "null" ? 0 : int.parse(latitude60thDigit[0]) + convertStringToDouble(latitude60thDigit[1]) / 60 + convertStringToDouble(latitude60thDigit[2]) / 3600;
+
+      // 経度(60進数なので10進数に変換する必要あり)
+      // [125, 849567/50000, 0] -> 125 + (849567/50000 / 60) + (0/0 / 3600) -> 125.283189
+      final List<String> longitude60thDigit = exifData["GPS GPSLongitude"].toString().replaceAll("[", "").replaceAll("]", "").split(",");
+      final double longitudeFromExif =
+          longitude60thDigit[0] == "null" ? 0 : int.parse(longitude60thDigit[0]) + convertStringToDouble(longitude60thDigit[1]) / 60 + convertStringToDouble(longitude60thDigit[2]) / 3600;
+
       final softwareFromExif = exifData["Image Software"].toString(); // 編集ソフト
-      final dateTimeFromExif = exifData["EXIF DateTimeOriginal"].toString().replaceFirst(':', '-').replaceFirst(':', '-'); // 撮影日
-      final shutterSpeedFromExif = exifData["EXIF ExposureTime"].toString(); // シャッタースピード
-      final fNumberList = exifData["EXIF FNumber"].toString().split("/"); // F値の分数
-      final fullFNumber = fNumberList.length == 2 ? int.parse(fNumberList[0]) / int.parse(fNumberList[1]) : 0.0; // 小数に変換
-      final fNumberFromExif = fullFNumber == 0 ? "null" : fullFNumber.toStringAsFixed(1); // 文字列に変換
-      final isoFromExif = exifData["EXIF ISOSpeedRatings"].toString(); // ISO
-      final focalLengthFromExif = exifData["EXIF FocalLengthIn35mmFilm"].toString(); // レンズの焦点距離
+      final imageTypeFromExif = exifData["Thumbnail Compression"].toString(); // 画像種別
 
       setState(() {
         markerdata = MarkerData(
@@ -205,13 +294,35 @@ class AddLocationDialogState extends ConsumerState<AddLocationDialog> {
           userId: ref.read(userIdProvider)!,
           name: _nameEditingController.value.text,
           imageUrl: "",
-          camera: cameraFromExif,
-          software: softwareFromExif,
+          cameraModel: cameraModelFromExif,
           dateTime: dateTimeFromExif,
           shutterSpeed: shutterSpeedFromExif,
           fNumber: fNumberFromExif,
           iso: isoFromExif,
           focalLength: "${focalLengthFromExif}mm",
+        );
+
+        collectingExifData = CollectingExifData(
+          cameraManufacturer: cameraManufacturerFromExif,
+          cameraModel: cameraModelFromExif,
+          lensManufacturer: lensManufacturerFromExif,
+          lensModel: lensModelFromExif,
+          lensSpecification: lensSpecificationFromExif,
+          fNumber: fNumberFromExif,
+          cameraMode: cameraModeFromExif,
+          shutterSpeed: shutterSpeedFromExif,
+          iso: isoFromExif,
+          dateTime: dateTimeFromExif,
+          timeZone: timeZoneFromExif,
+          focalLength: focalLengthFromExif,
+          whiteBalance: whiteBalanceFromExif,
+          focalLength35mm: focalLength35mmFromExif,
+          latitudeDirection: latitudeDirectionFromExif,
+          longitudeDirection: longitudeDirectionFromExif,
+          latitude: latitudeFromExif,
+          longitude: longitudeFromExif,
+          software: softwareFromExif,
+          imageType: imageTypeFromExif,
         );
       });
     }
@@ -230,5 +341,14 @@ class AddLocationDialogState extends ConsumerState<AddLocationDialog> {
 
     // アップロードした画像のURLを返す
     return await task.ref.getDownloadURL();
+  }
+
+  // "/" を含む文字列を double に変換
+  // "/" が含まない文字列も受け付ける
+  // "9/5" -> 1.8
+  // "2" -> 2.0
+  double convertStringToDouble(String target) {
+    var splitArray = target.split("/");
+    return splitArray.length == 1 ? double.parse(splitArray[0]) : int.parse(splitArray[0]) / int.parse(splitArray[1]);
   }
 }

@@ -39,7 +39,7 @@ class ExifTableContainer extends StatelessWidget {
           TableRow(
             children: <Widget>[
               const VerticalPaddingTableCell(verticalPaddingValue: 3.0, text: "カメラ", fontSizeValue: 14.0),
-              VerticalPaddingTableCell(verticalPaddingValue: 3.0, text: markerdata.camera, fontSizeValue: 14.0),
+              VerticalPaddingTableCell(verticalPaddingValue: 3.0, text: markerdata.cameraModel, fontSizeValue: 14.0),
             ],
           ),
           TableRow(
