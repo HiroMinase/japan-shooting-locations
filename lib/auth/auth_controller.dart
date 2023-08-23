@@ -54,4 +54,12 @@ class AuthController {
     _scaffoldMessengerController.showSnackBar('ログアウトしました');
     return;
   }
+
+  /// [FirebaseAuth] からログアウトして、退会リクエストを作成する。
+  Future<void> signOutAndWithdrawRequest() async {
+    _authService.signOutAndWithdrawRequest();
+
+    _scaffoldMessengerController.showSnackBar("退会リクエストを送信しました");
+    return;
+  }
 }

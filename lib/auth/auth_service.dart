@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:crypto/crypto.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -123,5 +124,16 @@ class AuthService {
   Future<void> signOut() async {
     await _auth.signOut();
     await GoogleSignIn().signOut();
+  }
+
+  /// [FirebaseAuth] からログアウトする。
+  Future<void> signOutAndWithdrawRequest() async {
+    await _auth.signOut();
+    await GoogleSignIn().signOut();
+
+    await FirebaseFirestore.instance.collection("withdrawRequests").add({
+      "userId": userIdProvider,
+      "createdAt": Timestamp.now(),
+    });
   }
 }

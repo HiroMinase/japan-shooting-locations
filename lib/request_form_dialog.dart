@@ -14,15 +14,19 @@ class RequestFormDialogState extends State<RequestFormDialog> {
   final _textEditingController = TextEditingController();
   final _nameEditingController = TextEditingController();
 
-  @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
-  void dispose() {
-    _nameEditingController.dispose();
-    super.dispose();
+  //　Firestore に登録
+  Future<void> _addRequest(
+    String text,
+    String name,
+  ) async {
+    await FirebaseFirestore.instance.collection("requests").add({
+      "text": text,
+      "name": name,
+      "createdAt": Timestamp.now(),
+    });
+    debugPrint("🌍 リクエストを作成: "
+        "text: $text, "
+        "name: $name");
   }
 
   @override
@@ -90,20 +94,5 @@ class RequestFormDialogState extends State<RequestFormDialog> {
         ],
       ),
     );
-  }
-
-  //　Firestore に登録
-  Future<void> _addRequest(
-    String text,
-    String name,
-  ) async {
-    await FirebaseFirestore.instance.collection("requests").add({
-      "text": text,
-      "name": name,
-      "createdAt": Timestamp.now(),
-    });
-    debugPrint("🌍 リクエストを作成: "
-        "text: $text, "
-        "name: $name");
   }
 }

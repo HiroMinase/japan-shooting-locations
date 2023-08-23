@@ -74,7 +74,7 @@ class SearchBarNav extends ConsumerWidget {
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: ColorTable.primaryWhiteColor,
                                   shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(15),
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
                                 ),
                                 onPressed: () async {
@@ -96,6 +96,33 @@ class SearchBarNav extends ConsumerWidget {
                                 ),
                                 label: const Text(
                                   "ログアウト",
+                                  style: TextStyle(
+                                    color: ColorTable.primaryBlackColor,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 1.2,
+                                  ),
+                                ),
+                              ),
+                              ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: ColorTable.primaryWhiteColor,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                                onPressed: () async {
+                                  await ref.read(authControllerProvider).signOut();
+
+                                  if (context.mounted) {
+                                    context.router.pushNamed(SignIn.location);
+                                  }
+                                },
+                                icon: const Icon(
+                                  Icons.delete,
+                                  color: Colors.red,
+                                ),
+                                label: const Text(
+                                  "退会申請",
                                   style: TextStyle(
                                     color: ColorTable.primaryBlackColor,
                                     fontWeight: FontWeight.bold,
