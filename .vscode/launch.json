@@ -1,0 +1,41 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        // iOS simurator
+        {
+            "name": "japan_shooting_locations",
+            "request": "launch",
+            "type": "dart",
+            "deviceId": "A17B8409-70B2-4378-AD7B-C496F428404C"
+        },
+        // iPhone 実機
+        {
+            "name": "japan_shooting_locations",
+            "request": "launch",
+            "type": "dart",
+            "deviceId": "00008030-0012604E3E60802E"
+        },
+        // pixel3a 実機
+        {
+            "name": "japan_shooting_locations",
+            "request": "launch",
+            "type": "dart",
+            "deviceId": "948AY0KRZ2"
+        },
+        {
+            "name": "japan_shooting_locations (profile mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "profile"
+        },
+        {
+            "name": "japan_shooting_locations (release mode)",
+            "request": "launch",
+            "type": "dart",
+            "flutterMode": "release"
+        }
+    ]
+}
