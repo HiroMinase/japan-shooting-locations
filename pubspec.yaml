@@ -55,7 +55,7 @@ dependencies:
 
   crypto: ^3.0.1
   google_sign_in: ^6.1.4
-  sign_in_with_apple: ^3.0.0
+  sign_in_with_apple: ^3.3.0
   sign_in_button: ^3.2.0
 
   auto_route: ^7.7.0
