@@ -134,7 +134,7 @@ class AddLocationDialogState extends ConsumerState<AddLocationDialog> {
                 throw Exception("写真を選択してください");
               }
               try {
-                await _addLocation(name, latitude, longitude, imageFile!, markerdata);
+                await _addLocation(name, latitude, longitude, imageFile!, markerdata, collectingExifData);
               } on Exception catch (e) {
                 debugPrint(
                   "🚨 撮影スポット作成に失敗 $e",
@@ -153,13 +153,7 @@ class AddLocationDialogState extends ConsumerState<AddLocationDialog> {
   }
 
   //　Firestore に登録
-  Future<void> _addLocation(
-    String name,
-    double latitude,
-    double longitude,
-    File file,
-    MarkerData markerdata,
-  ) async {
+  Future<void> _addLocation(String name, double latitude, double longitude, File file, MarkerData markerdata, CollectingExifData collectingExifData) async {
     final geoFirePoint = GeoFirePoint(GeoPoint(latitude, longitude));
 
     final uploadedLink = await _uploadImage(file);
@@ -171,12 +165,26 @@ class AddLocationDialogState extends ConsumerState<AddLocationDialog> {
       "geo": geoFirePoint.data,
       "name": name,
       "imageUrl": uploadedLink,
-      "cameraModel": markerdata.cameraModel,
       "dateTime": markerdata.dateTime,
+      "timeZone": collectingExifData.timeZone,
       "shutterSpeed": markerdata.shutterSpeed,
       "fNumber": markerdata.fNumber,
       "iso": markerdata.iso,
       "focalLength": markerdata.focalLength,
+      "focalLength35mm": collectingExifData.focalLength35mm,
+      "cameraManufacturer": collectingExifData.cameraManufacturer,
+      "cameraModel": markerdata.cameraModel,
+      "lensManufacturer": collectingExifData.lensManufacturer,
+      "lensModel": collectingExifData.lensModel,
+      "lensSpecification": collectingExifData.lensSpecification,
+      "cameraMode": collectingExifData.cameraMode,
+      "whiteBalance": collectingExifData.whiteBalance,
+      "latitudeDirection": collectingExifData.latitudeDirection,
+      "longitudeDirection": collectingExifData.longitudeDirection,
+      "latitude": collectingExifData.latitude,
+      "longitude": collectingExifData.longitude,
+      "software": collectingExifData.software,
+      "imageType": collectingExifData.imageType,
       "isVisible": true,
       "createdAt": Timestamp.now(),
     });
@@ -252,9 +260,15 @@ class AddLocationDialogState extends ConsumerState<AddLocationDialog> {
       final String lensSpecificationFromExif = exifData["EXIF LensSpecification"].toString(); // レンズの仕様 焦点距離・F値
 
       // F値が分数または数値で登録されているので変換
-      final List<String> fNumberArray = exifData["EXIF FNumber"].toString().split("/"); // 保存されているF値
-      final dynamic calcFNumber = fNumberArray.length == 1 ? int.parse(fNumberArray[0]) : int.parse(fNumberArray[0]) / int.parse(fNumberArray[1]); // 小数か数値に変換
-      final String fNumberFromExif = calcFNumber is int ? calcFNumber.toString() : calcFNumber.toStringAsFixed(1); // 数値ならそのまま/少数なら第一位までの、文字列に変換
+      String fNumberFromExif = "";
+      final List<String> rawFNumberArray = exifData["EXIF FNumber"].toString().split("/"); // 保存されているF値
+
+      if (rawFNumberArray[0] == "null") {
+        fNumberFromExif = "null";
+      } else {
+        final dynamic calcFNumber = rawFNumberArray.length == 1 ? int.parse(rawFNumberArray[0]) : int.parse(rawFNumberArray[0]) / int.parse(rawFNumberArray[1]); // 小数か数値に変換
+        fNumberFromExif = calcFNumber is int ? calcFNumber.toString() : calcFNumber.toStringAsFixed(1); // 数値ならそのまま/少数なら第一位までの、文字列に変換
+      }
 
       final String cameraModeFromExif = exifData["EXIF ExposureProgram"].toString(); // 撮影設定
       final String shutterSpeedFromExif = exifData["EXIF ExposureTime"].toString(); // シャッタースピード
@@ -263,9 +277,15 @@ class AddLocationDialogState extends ConsumerState<AddLocationDialog> {
       final String timeZoneFromExif = exifData["EXIF OffsetTime"].toString(); // タイムゾーン
 
       // 焦点距離が分数または数値で登録されているので変換
-      final List<String> rawFocalLength = exifData["EXIF FocalLength"].toString().split("/"); // 保存されている焦点距離
-      final dynamic calcFocalLength = rawFocalLength.length == 1 ? rawFocalLength[0] : int.parse(rawFocalLength[0]) / int.parse(rawFocalLength[1]); // 小数か数値に変換
-      final String focalLengthFromExif = calcFocalLength is String ? calcFocalLength : calcFocalLength.floor().toString(); // 数値ならそのまま/少数なら切り捨てて、文字列に変換
+      String focalLengthFromExif = "";
+      final List<String> rawFocalLengthArray = exifData["EXIF FocalLength"].toString().split("/"); // 保存されている焦点距離
+
+      if (rawFocalLengthArray[0] == "null") {
+        focalLengthFromExif = "null";
+      } else {
+        final dynamic calcFocalLength = rawFocalLengthArray.length == 1 ? rawFocalLengthArray[0] : int.parse(rawFocalLengthArray[0]) / int.parse(rawFocalLengthArray[1]); // 小数か数値に変換
+        focalLengthFromExif = calcFocalLength is String ? calcFocalLength : calcFocalLength.floor().toString(); // 数値ならそのまま/少数なら切り捨てて、文字列に変換
+      }
 
       final String focalLength35mmFromExif = exifData["EXIF FocalLengthIn35mmFilm"].toString(); // 焦点距離(35mm換算)
       final String whiteBalanceFromExif = exifData["EXIF WhiteBalance"].toString(); // ホワイトバランス
