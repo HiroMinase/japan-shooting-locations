@@ -4,23 +4,20 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-        // iOS simurator
         {
-            "name": "japan_shooting_locations",
+            "name": "japan_shooting_locations_ios_simurator",
             "request": "launch",
             "type": "dart",
             "deviceId": "A17B8409-70B2-4378-AD7B-C496F428404C"
         },
-        // iPhone 実機
         {
-            "name": "japan_shooting_locations",
+            "name": "japan_shooting_locations_iphone",
             "request": "launch",
             "type": "dart",
             "deviceId": "00008030-0012604E3E60802E"
         },
-        // pixel3a 実機
         {
-            "name": "japan_shooting_locations",
+            "name": "japan_shooting_locations_pixel3",
             "request": "launch",
             "type": "dart",
             "deviceId": "948AY0KRZ2"
