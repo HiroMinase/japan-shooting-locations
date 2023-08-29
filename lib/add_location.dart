@@ -72,6 +72,7 @@ class AddLocationDialogState extends ConsumerState<AddLocationDialog> {
   String fNumber = "";
   String iso = "";
   String focalLength = "";
+  bool isProgress = false;
 
   @override
   void initState() {
@@ -93,60 +94,77 @@ class AddLocationDialogState extends ConsumerState<AddLocationDialog> {
       title: const Center(
         child: Text("撮影スポットを登録"),
       ),
-      content: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
+      content: Stack(
         children: [
-          TextField(
-            controller: _nameEditingController,
-            keyboardType: TextInputType.name,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(10),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: _nameEditingController,
+                keyboardType: TextInputType.name,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  label: const Text("名前"),
+                ),
               ),
-              label: const Text("名前"),
-            ),
+              const SizedBox(height: 16),
+              if (imageFile != null) Image.file(imageFile!, height: MediaQuery.of(context).size.height * 0.2),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () async {
+                  _importImage();
+                },
+                style: ElevatedButton.styleFrom(backgroundColor: Colors.yellow),
+                child: Text(
+                  "写真を選ぶ",
+                  style: TextStyle(color: ColorTable.primaryBlackColor[400]),
+                ),
+              ),
+              const SizedBox(height: 16),
+              ExifTableContainer(markerdata: markerdata),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: () async {
+                  final navigator = Navigator.of(context);
+                  final name = _nameEditingController.value.text;
+                  if (name.isEmpty) {
+                    throw Exception("名前を入力してください");
+                  }
+                  if (imageFile == null) {
+                    throw Exception("写真を選択してください");
+                  }
+                  try {
+                    await _addLocation(name, latitude, longitude, imageFile!, markerdata, collectingExifData);
+                  } on Exception catch (e) {
+                    debugPrint(
+                      "🚨 撮影スポット作成に失敗 $e",
+                    );
+                  }
+                  navigator.pop();
+                },
+                child: const Text(
+                  "作成",
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 16),
-          if (imageFile != null) Image.file(imageFile!, height: MediaQuery.of(context).size.height * 0.2),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () async {
-              _importImage();
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.yellow),
-            child: Text(
-              "写真を選ぶ",
-              style: TextStyle(color: ColorTable.primaryBlackColor[400]),
+          if (isProgress)
+            Center(
+              child: Container(
+                width: 200,
+                height: 200,
+                color: Colors.black54,
+                child: const Center(
+                  child: CircularProgressIndicator(
+                    color: ColorTable.primaryWhiteColor,
+                  ),
+                ),
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          ExifTableContainer(markerdata: markerdata),
-          const SizedBox(height: 16),
-          ElevatedButton(
-            onPressed: () async {
-              final navigator = Navigator.of(context);
-              final name = _nameEditingController.value.text;
-              if (name.isEmpty) {
-                throw Exception("名前を入力してください");
-              }
-              if (imageFile == null) {
-                throw Exception("写真を選択してください");
-              }
-              try {
-                await _addLocation(name, latitude, longitude, imageFile!, markerdata, collectingExifData);
-              } on Exception catch (e) {
-                debugPrint(
-                  "🚨 撮影スポット作成に失敗 $e",
-                );
-              }
-              navigator.pop();
-            },
-            child: const Text(
-              "作成",
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
         ],
       ),
     );
@@ -154,6 +172,10 @@ class AddLocationDialogState extends ConsumerState<AddLocationDialog> {
 
   //　Firestore に登録
   Future<void> _addLocation(String name, double latitude, double longitude, File file, MarkerData markerdata, CollectingExifData collectingExifData) async {
+    setState(() {
+      isProgress = true;
+    });
+
     final geoFirePoint = GeoFirePoint(GeoPoint(latitude, longitude));
 
     final uploadedLink = await _uploadImage(file);
@@ -196,6 +218,10 @@ class AddLocationDialogState extends ConsumerState<AddLocationDialog> {
       "geohash: ${geoFirePoint.geohash}, "
       "imageURL: $uploadedLink, ",
     );
+
+    setState(() {
+      isProgress = false;
+    });
   }
 
   // 画像を選択させ、 Exif を取得し、 MarkerData, CollectingExifData を生成
